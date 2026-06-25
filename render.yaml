@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: dispatcher-skills-competition-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: https://jade-tiramisu-f2c504.netlify.app
