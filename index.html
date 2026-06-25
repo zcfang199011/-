@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>运行控制部2026年安全知识与业务技能比赛</title>
+  <link rel="icon" href="assets/suparna-logo.png" />
+  <style>
+    :root {
+      --bg: #0b0f12;
+      --panel: #151b20;
+      --panel2: #1e272d;
+      --line: rgba(255,255,255,.1);
+      --text: #f6fafc;
+      --muted: #9fb0ba;
+      --ink: #101417;
+      --paper: #f6f8f9;
+      --red: #e60012;
+      --gold: #ffc72c;
+      --cyan: #18d4dc;
+      --green: #42c576;
+      --orange: #ff9f1c;
+      --danger: #ff5a63;
+      --radius: 8px;
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 82% 8%, rgba(255,199,44,.12), transparent 30%),
+        radial-gradient(circle at 10% 10%, rgba(230,0,18,.12), transparent 26%),
+        var(--bg);
+      letter-spacing: 0;
+    }
+    button, input, select { font: inherit; }
+    button {
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.13);
+      background: #222b31;
+      color: var(--text);
+      cursor: pointer;
+    }
+    button:hover { border-color: var(--cyan); color: var(--cyan); }
+    input, select {
+      width: 100%;
+      min-height: 38px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #10161a;
+      color: var(--text);
+    }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 270px 1fr; }
+    .sidebar {
+      background: rgba(8,11,14,.96);
+      border-right: 1px solid var(--line);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+    }
+    .brand { padding: 18px 16px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 12px; }
+    .brand-logo {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .brand-logo img {
+      width: 72px;
+      height: 48px;
+      object-fit: contain;
+      background: transparent;
+      border-radius: 8px;
+      padding: 0;
+    }
+    .brand h1 { margin: 0; font-size: 18px; line-height: 1.28; font-weight: 900; }
+    .brand small { color: var(--muted); line-height: 1.4; }
+    .nav { padding: 14px; display: grid; gap: 8px; align-content: start; }
+    .nav button {
+      border-color: transparent;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      text-align: left;
+      font-weight: 900;
+    }
+    .nav button.active {
+      background: linear-gradient(90deg, rgba(230,0,18,.3), rgba(255,199,44,.16));
+      border-color: rgba(255,199,44,.45);
+    }
+    .nav i {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      background: rgba(255,255,255,.08);
+      font-style: normal;
+    }
+    .side-status { padding: 14px 18px 18px; border-top: 1px solid var(--line); color: var(--muted); display: grid; gap: 10px; font-size: 12px; }
+    .side-row { display: flex; justify-content: space-between; gap: 12px; }
+    .main { min-width: 0; min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+    .topbar {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(9,13,16,.88);
+      display: grid;
+      grid-template-columns: minmax(560px,1fr) auto;
+      gap: 18px;
+      align-items: center;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 18px;
+      align-items: center;
+      min-width: 0;
+    }
+    .air-stage {
+      height: 92px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: var(--radius);
+      background: transparent;
+      position: relative;
+    }
+    .air-stage img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 54%;
+      border-radius: 6px;
+    }
+    .title h2 { margin: 0 0 7px; font-size: 27px; line-height: 1.16; font-weight: 900; }
+    .title span { color: #d7e5eb; font-size: 15px; font-weight: 700; }
+    .broadcast {
+      display: grid;
+      grid-template-columns: 150px 96px 150px;
+      align-items: center;
+      min-width: 396px;
+      color: var(--ink);
+      background: #f2f5f6;
+      clip-path: polygon(22px 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 22px 100%, 0 50%);
+    }
+    .broadcast div { text-align: center; padding: 10px; }
+    .broadcast strong { display: block; font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .broadcast small { color: #65737c; font-size: 12px; }
+    .broadcast .live { height: 100%; display: grid; place-items: center; background: #111820; color: var(--cyan); font-size: 22px; font-weight: 900; }
+    .broadcast .live small { color: var(--muted); display: block; font-size: 11px; }
+    .view { display: none; padding: 18px; min-width: 0; }
+    .view.active { display: block; }
+    .panel {
+      background: rgba(21,27,32,.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 16px 50px rgba(0,0,0,.22);
+      min-width: 0;
+    }
+    .panel.light { background: var(--paper); color: var(--ink); border-color: rgba(0,0,0,.08); }
+    .panel-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .light .panel-header { border-bottom-color: rgba(0,0,0,.08); }
+    .panel-header h3 { margin: 0; font-size: 16px; line-height: 1.2; }
+    .panel-header span { color: var(--muted); font-size: 12px; }
+    .metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; margin-bottom: 18px; }
+    .metric { padding: 16px; min-height: 108px; background: linear-gradient(180deg, rgba(29,37,43,.98), rgba(18,24,28,.96)); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius); display: grid; align-content: space-between; box-shadow: 0 16px 42px rgba(0,0,0,.18); }
+    .metric span { color: var(--muted); font-size: 12px; }
+    .metric strong { font-size: 34px; line-height: 1; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .metric em { color: var(--cyan); font-size: 12px; font-style: normal; }
+    .dash-grid { display: grid; grid-template-columns: minmax(540px, 1fr); gap: 16px; }
+    .dashboard-rank-area { display: grid; grid-template-columns: minmax(620px,1fr) minmax(360px,.55fr); gap: 16px; }
+    .dashboard-bottom-area { display: grid; grid-template-columns: minmax(520px,.9fr) minmax(420px,.7fr); gap: 16px; margin-top: 16px; }
+    .module-list, .rank-list, .table-wrap, .settings-body { padding: 12px; display: grid; gap: 10px; }
+    .module-row {
+      display: grid;
+      grid-template-columns: 36px 1fr 72px;
+      gap: 10px;
+      align-items: center;
+      padding: 13px;
+      background: #10161a;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+    .module-row.active { border-color: var(--gold); background: linear-gradient(90deg, rgba(230,0,18,.22), rgba(255,199,44,.1)); }
+    .num { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #071113; background: var(--cyan); font-weight: 900; }
+    .module-row small { display: block; color: var(--muted); margin-top: 3px; }
+    .progress { height: 8px; margin-top: 8px; border-radius: 999px; background: rgba(255,255,255,.1); overflow: hidden; }
+    .progress i { display: block; height: 100%; width: var(--value); background: linear-gradient(90deg, var(--red), var(--gold)); }
+    .tabs { display: flex; gap: 8px; }
+    .tabs button { min-height: 32px; }
+    .tabs button.active { background: var(--gold); color: #221806; border-color: var(--gold); font-weight: 900; }
+    .rank-row {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px;
+      background: #10161a;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+    }
+    .rank-row:first-child .num { background: var(--gold); }
+    .rank-info strong { display: block; font-size: 14px; }
+    .rank-info small { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .rank-score { color: var(--cyan); font-size: 23px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .rank-columns { padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .rank-block { min-width: 0; display: grid; gap: 8px; align-content: start; }
+    .rank-block h4 { margin: 0; font-size: 14px; color: var(--gold); }
+    .rank-block.wide { grid-column: 1 / -1; }
+    .module-rank-grid { padding: 12px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+    .module-rank-card { min-width: 0; padding: 12px; border-radius: var(--radius); background: linear-gradient(180deg, #11191e, #0e1418); border: 1px solid rgba(255,255,255,.09); display: grid; gap: 9px; }
+    .module-rank-card h4 { margin: 0; color: var(--gold); font-size: 14px; }
+    .module-mini-rank { display: grid; gap: 6px; }
+    .module-mini-row { display: grid; grid-template-columns: 24px 1fr auto; gap: 6px; align-items: center; padding: 6px; border-radius: 6px; background: rgba(255,255,255,.035); cursor: pointer; }
+    .module-mini-row:hover { outline: 1px solid rgba(24,212,220,.55); }
+    .module-mini-row .mini-no { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: rgba(24,212,220,.18); color: var(--cyan); font-weight: 900; font-size: 12px; }
+    .module-mini-row:first-child .mini-no { background: var(--gold); color: #211806; }
+    .module-mini-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+    .module-mini-score { color: var(--cyan); font-weight: 900; font-variant-numeric: tabular-nums; font-size: 14px; }
+    .score-detail { margin: 0 12px 12px; padding: 12px; border-radius: var(--radius); background: #10161a; border: 1px solid rgba(255,255,255,.08); display: grid; gap: 8px; }
+    .score-detail h4 { margin: 0; font-size: 15px; }
+    .score-detail-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+    .exam-grid, .monitor-grid, .settings-grid { display: grid; grid-template-columns: minmax(560px,1fr) 380px; gap: 16px; }
+    .exam-paper { padding: 18px; display: grid; gap: 16px; }
+    .toolbar { display: grid; grid-template-columns: 1fr 170px 150px; gap: 10px; align-items: center; }
+    .question { padding: 18px; background: #fff; color: var(--ink); border: 1px solid rgba(0,0,0,.08); border-radius: var(--radius); display: grid; gap: 14px; }
+    .question h3 { margin: 0; font-size: 21px; line-height: 1.45; }
+    .option { display: grid; grid-template-columns: 28px 1fr; align-items: center; gap: 10px; padding: 12px; border: 1px solid #dde4e8; border-radius: 8px; cursor: pointer; }
+    .option input { width: 18px; min-height: 18px; accent-color: var(--red); }
+    .actions { display: grid; grid-template-columns: repeat(4,auto) 1fr; gap: 10px; align-items: center; }
+    .primary { background: linear-gradient(135deg, var(--red), #f05b2f); color: #fff; border-color: rgba(255,255,255,.16); font-weight: 900; }
+    .gold { background: var(--gold); color: #211806; border-color: var(--gold); font-weight: 900; }
+    .video-box { margin: 14px; min-height: 250px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: var(--radius); background: #050708; }
+    video { width: 100%; height: 100%; object-fit: cover; background: #050708; }
+    .placeholder { color: var(--muted); text-align: center; padding: 20px; line-height: 1.6; }
+    .status-list { padding: 0 14px 14px; display: grid; gap: 8px; }
+    .status-row { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 13px; }
+    .camera-grid { padding: 12px; display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 10px; max-height: calc(100vh - 170px); overflow: auto; }
+    .camera-tile { min-height: 106px; background: #0d1216; border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); overflow: hidden; position: relative; display: grid; align-content: end; cursor: pointer; }
+    .camera-tile.selected { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(255,199,44,.4); }
+    .camera-sim { position: absolute; inset: 0; background: radial-gradient(circle at 50% 33%, rgba(255,255,255,.16), transparent 20%), linear-gradient(135deg, rgba(24,212,220,.12), rgba(230,0,18,.12)), #11181d; }
+    .tile-caption { position: relative; z-index: 2; display: flex; align-items: end; justify-content: space-between; gap: 6px; padding: 8px; background: linear-gradient(180deg, transparent, rgba(0,0,0,.78)); font-size: 12px; }
+    .tile-caption strong { display: block; font-size: 13px; }
+    .tile-caption small { color: var(--muted); }
+    .pill { padding: 3px 6px; border-radius: 999px; background: rgba(66,197,118,.18); color: #a8f0c5; white-space: nowrap; }
+    .pill.warn { background: rgba(255,176,46,.18); color: #ffd58c; }
+    .pill.danger { background: rgba(255,90,99,.18); color: #ffb7bc; }
+    .detail { padding: 14px; display: grid; gap: 12px; }
+    .detail-card { padding: 12px; border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); background: #10161a; display: grid; gap: 8px; }
+    .detail-card h4 { margin: 0; font-size: 18px; }
+    .detail-row { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 13px; }
+    .feed { display: grid; gap: 8px; max-height: 260px; overflow: auto; }
+    .feed-item { display: grid; grid-template-columns: 54px 1fr; gap: 10px; color: #dce6ea; font-size: 13px; line-height: 1.45; }
+    .feed-time { color: var(--gold); font-variant-numeric: tabular-nums; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; vertical-align: top; }
+    th { color: var(--gold); font-weight: 900; }
+    .light th, .light td { border-bottom-color: rgba(0,0,0,.08); }
+    .upload-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; }
+    .hint { color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .dashboard-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mini-stat { padding: 10px; border-radius: var(--radius); background: #10161a; border: 1px solid rgba(255,255,255,.08); }
+    .mini-stat span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    .mini-stat strong { font-size: 20px; color: var(--text); font-variant-numeric: tabular-nums; }
+    .monitor-video { min-height: 190px; border-radius: var(--radius); overflow: hidden; border: 1px solid rgba(255,255,255,.1); background: #050708; display: grid; place-items: center; }
+    .toast { position: fixed; right: 18px; bottom: 18px; z-index: 10; max-width: 360px; padding: 12px 14px; border-radius: var(--radius); background: #f6f8f9; color: #101417; box-shadow: 0 18px 50px rgba(0,0,0,.36); font-weight: 800; transform: translateY(120px); opacity: 0; transition: .22s ease; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    body {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.94), rgba(239,245,248,.96) 42%, rgba(250,252,253,.98)),
+        var(--bg);
+      color: #14212b;
+    }
+    .sidebar {
+      background: rgba(255,255,255,.92);
+      border-right: 1px solid rgba(18,31,42,.1);
+      box-shadow: 14px 0 42px rgba(31,52,66,.08);
+    }
+    .brand, .nav button, .side-status, .title span, .panel-header span, .rank-info small,
+    .module-row small, .placeholder, .status-row, .hint, .tile-caption small { color: #62717b; }
+    .brand h1, .title h2, .panel-header h3, .rank-info strong, .module-row strong { color: #14212b; }
+    .nav button:hover, .nav button.active {
+      background: linear-gradient(90deg, rgba(230,0,18,.09), rgba(255,199,44,.18));
+      border-color: rgba(230,0,18,.18);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+    }
+    .nav i { color: #e60012; background: rgba(230,0,18,.08); }
+    .topbar {
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 12px 36px rgba(33,52,66,.08);
+      backdrop-filter: blur(18px);
+    }
+    .air-stage { border-color: rgba(20,31,41,.12); box-shadow: 0 12px 34px rgba(31,52,66,.12); }
+    .panel, .panel.light, .metric, .module-row, .rank-row, .module-rank-card,
+    .score-detail, .detail-card, .mini-stat, .config-row {
+      background: rgba(255,255,255,.9);
+      color: #14212b;
+      border-color: rgba(20,31,41,.1);
+      box-shadow: 0 16px 42px rgba(31,52,66,.09);
+    }
+    .panel-header, .light .panel-header { border-bottom-color: rgba(20,31,41,.08); }
+    .metrics { margin: 16px 0 0; }
+    .metric em, .rank-score, .module-mini-score { color: #006d78; }
+    .rank-block h4, .module-rank-card h4, th, .feed-time { color: #b88400; }
+    .module-mini-row { background: rgba(12,36,48,.045); }
+    .module-row.active { background: linear-gradient(90deg, rgba(230,0,18,.08), rgba(255,199,44,.18)); }
+    .progress { background: rgba(20,31,41,.1); }
+    .video-box, video, .camera-tile, .monitor-video { background: #eef3f6; border-color: rgba(20,31,41,.1); }
+    .camera-sim { background: radial-gradient(circle at 50% 33%, rgba(255,255,255,.9), transparent 20%), linear-gradient(135deg, rgba(0,109,120,.12), rgba(230,0,18,.1)), #dce7ec; }
+    .tile-caption { background: linear-gradient(180deg, transparent, rgba(20,31,41,.72)); color: #fff; }
+    .feed-item, .detail-row { color: #52636e; }
+    .mini-stat strong { color: #14212b; }
+    .toolbar { grid-template-columns: minmax(220px, 1fr) 190px minmax(220px, 1fr); }
+    #moduleSelect { display: none; }
+    #paperInfo { color: #62717b; font-size: 13px; font-weight: 700; }
+    body {
+      background:
+        radial-gradient(circle at 78% 6%, rgba(255,199,44,.16), transparent 28%),
+        radial-gradient(circle at 8% 8%, rgba(230,0,18,.18), transparent 28%),
+        linear-gradient(135deg, #070b0e 0%, #0c1216 48%, #111a20 100%);
+      color: var(--text);
+    }
+    .sidebar {
+      background: rgba(10,15,18,.94);
+      border-right: 1px solid rgba(255,255,255,.08);
+      box-shadow: 14px 0 42px rgba(0,0,0,.22);
+    }
+    .brand, .nav button, .side-status, .title span, .panel-header span, .rank-info small,
+    .module-row small, .placeholder, .status-row, .hint, .tile-caption small { color: var(--muted); }
+    .brand h1, .title h2, .panel-header h3, .rank-info strong, .module-row strong { color: var(--text); }
+    .nav button:hover, .nav button.active {
+      background: linear-gradient(90deg, rgba(230,0,18,.3), rgba(255,199,44,.16));
+      border-color: rgba(255,199,44,.45);
+      box-shadow: none;
+    }
+    .nav i { color: var(--gold); background: rgba(255,255,255,.08); }
+    .topbar {
+      background: linear-gradient(180deg, rgba(10,15,18,.92), rgba(12,18,22,.82));
+      box-shadow: 0 16px 46px rgba(0,0,0,.26);
+      backdrop-filter: blur(18px);
+    }
+    .air-stage {
+      border-color: rgba(255,255,255,.08);
+      box-shadow: 0 18px 44px rgba(0,0,0,.32);
+      background: #0b1115;
+    }
+    .air-stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(11,17,21,.16), transparent 28%, rgba(11,17,21,.48));
+      pointer-events: none;
+    }
+    .air-stage img { filter: saturate(1.05) contrast(1.05); }
+    .panel, .panel.light, .metric, .module-row, .rank-row, .module-rank-card,
+    .score-detail, .detail-card, .mini-stat, .config-row {
+      background: rgba(19,25,30,.94);
+      color: var(--text);
+      border-color: rgba(255,255,255,.1);
+      box-shadow: 0 16px 50px rgba(0,0,0,.24);
+    }
+    .panel-header, .light .panel-header { border-bottom-color: rgba(255,255,255,.08); }
+    .metric em, .rank-score, .module-mini-score { color: var(--cyan); }
+    .rank-block h4, .module-rank-card h4, th, .feed-time { color: var(--gold); }
+    .module-mini-row { background: rgba(255,255,255,.04); }
+    .module-row.active { background: linear-gradient(90deg, rgba(230,0,18,.22), rgba(255,199,44,.1)); }
+    .progress { background: rgba(255,255,255,.1); }
+    .video-box, video, .camera-tile, .monitor-video { background: #050708; border-color: rgba(255,255,255,.1); }
+    .camera-sim { background: radial-gradient(circle at 50% 33%, rgba(255,255,255,.16), transparent 20%), linear-gradient(135deg, rgba(24,212,220,.12), rgba(230,0,18,.12)), #11181d; }
+    .feed-item, .detail-row { color: #dce6ea; }
+    .mini-stat strong { color: var(--text); }
+    #paperInfo { color: var(--muted); }
+    #dashboardView.view.active { display: flex; flex-direction: column; gap: 16px; }
+    #dashboardView .dash-grid { display: contents; }
+    #dashboardView .dashboard-rank-area { order: 1; }
+    #dashboardView .metrics { order: 2; }
+    #dashboardView .dashboard-bottom-area { order: 3; margin-top: 0; }
+    @media (max-width: 1320px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { min-height: auto; }
+      .nav { grid-template-columns: repeat(5,1fr); }
+      .side-status { display: none; }
+      .topbar, .dash-grid, .exam-grid, .monitor-grid, .settings-grid { grid-template-columns: 1fr; }
+      .dashboard-rank-area, .dashboard-bottom-area { grid-template-columns: 1fr; }
+      .camera-grid { grid-template-columns: repeat(4,minmax(0,1fr)); max-height: none; }
+      .rank-columns { grid-template-columns: 1fr; }
+      .rank-block.wide { grid-column: auto; }
+      .module-rank-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 760px) {
+      .brand-logo, .hero, .toolbar, .actions, .metrics, .nav, .upload-row { grid-template-columns: 1fr; }
+      .title h2 { font-size: 20px; }
+      .broadcast { min-width: 0; grid-template-columns: 1fr 80px 1fr; clip-path: none; }
+      .camera-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .air-stage { height: 66px; }
+      .score-detail-grid { grid-template-columns: 1fr 1fr; }
+      .module-rank-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <section class="brand">
+        <div class="brand-logo">
+          <img src="assets/suparna-logo-transparent.png" alt="金鹏航空 LOGO" />
+          <div>
+            <h1>运行控制部2026年安全知识与业务技能比赛</h1>
+            <small>Online Contest System</small>
+          </div>
+        </div>
+      </section>
+      <nav class="nav">
+        <button class="active" data-view="dashboard"><i>榜</i>大屏看板</button>
+        <button data-view="exam"><i>考</i>在线考试</button>
+        <button data-view="monitor"><i>摄</i>视频监考</button>
+        <button data-view="bank"><i>库</i>题库管理</button>
+        <button data-view="settings"><i>规</i>规则设置</button>
+      </nav>
+      <section class="side-status">
+        <div class="side-row"><span>系统状态</span><strong>运行中</strong></div>
+        <div class="side-row"><span>登录人数</span><strong id="sideOnline">42/42</strong></div>
+        <div class="side-row"><span>班组成绩</span><strong>个人平均分</strong></div>
+      </section>
+    </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="hero">
+          <div class="air-stage" aria-label="飞机展示"><img src="assets/suparna-aircraft-hero.png" alt="金鹏航空飞机" /></div>
+          <div class="title">
+            <h2>运行控制部2026年安全知识与业务技能比赛</h2>
+            <span>人人讲安全、个个会应急——排查整治风险隐患</span>
+          </div>
+        </div>
+        <section class="broadcast">
+          <div><strong id="topLeader">--</strong><small>个人第1名</small></div>
+          <div class="live">LIVE<small id="activeModule">安全知识</small></div>
+          <div><strong id="topTeam">--</strong><small>班组第1名</small></div>
+        </section>
+      </header>
+
+      <main>
+        <section class="view active" id="dashboardView">
+          <div class="metrics">
+            <article class="metric"><span>登录人数</span><strong id="metricOnline">42</strong><em>来自人员与班组信息</em></article>
+            <article class="metric"><span>已提交</span><strong id="metricSubmitted">0</strong><em>个人试卷提交</em></article>
+            <article class="metric"><span>摄像头正常</span><strong id="metricCamera">0</strong><em>监考在线状态</em></article>
+            <article class="metric"><span>当前模块</span><strong id="metricModule">1/5</strong><em id="metricTimer">15:00</em></article>
+            <article class="metric"><span>班组数量</span><strong id="metricTeams">3</strong><em>按人员信息自动汇总</em></article>
+            <article class="metric"><span>题库题量</span><strong id="metricBank">5</strong><em>支持上传与导出</em></article>
+            <article class="metric"><span>平均分</span><strong id="metricAverage">0</strong><em>已提交人员平均</em></article>
+            <article class="metric"><span>异常监控</span><strong id="metricWarnings">0</strong><em>关注/异常状态</em></article>
+          </div>
+          <div class="dash-grid">
+            <div class="dashboard-rank-area">
+              <section class="panel">
+              <div class="panel-header">
+                <h3>成绩排名</h3>
+                <span>点击排名行查看具体打分</span>
+              </div>
+              <div class="module-rank-grid" id="allModuleRankGrid"></div>
+              <div class="rank-columns">
+                <div class="rank-block">
+                  <h4>个人排名</h4>
+                  <div class="rank-list" id="personalRankList"></div>
+                </div>
+                <div class="rank-block">
+                  <h4>班组排名</h4>
+                  <div class="rank-list" id="teamRankList"></div>
+                </div>
+              </div>
+              <div class="score-detail" id="scoreDetail">
+                <h4>打分详情</h4>
+                <div class="hint">点击个人、班组或任一模块排名行查看详细分数。</div>
+              </div>
+              </section>
+              <section class="panel">
+                <div class="panel-header"><h3>综合态势</h3><span>实时汇总</span></div>
+                <div class="module-list">
+                  <article class="detail-card">
+                    <div class="dashboard-split">
+                      <div class="mini-stat"><span>最高个人分</span><strong id="miniBest">0</strong></div>
+                      <div class="mini-stat"><span>领先班组</span><strong id="miniTeam">--</strong></div>
+                      <div class="mini-stat"><span>未交卷</span><strong id="miniPending">0</strong></div>
+                      <div class="mini-stat"><span>关注人数</span><strong id="miniWarn">0</strong></div>
+                    </div>
+                  </article>
+                  <article class="detail-card">
+                    <h4>赛事动态</h4>
+                    <div class="feed" id="dashboardFeed"></div>
+                  </article>
+                </div>
+              </section>
+            </div>
+            <div class="dashboard-bottom-area">
+              <section class="panel">
+                <div class="panel-header"><h3>比赛模块</h3><span>点击切换当前模块</span></div>
+                <div class="module-list" id="moduleList"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-header"><h3>模块说明</h3><span>按方案五模块开展</span></div>
+                <ol class="settings-body">
+                  <li>安全知识、手册修订、新规章、签派放行、运行控制共五个模块。</li>
+                  <li>大屏实时展示个人、班组以及各模块个人排名。</li>
+                  <li>班组成绩按照班组内个人成绩平均分计算。</li>
+                </ol>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="examView">
+          <div class="exam-grid">
+            <section class="panel light">
+              <div class="panel-header"><h3>在线考试</h3><span id="examState">未提交</span></div>
+              <div class="exam-paper">
+                <div class="toolbar">
+                  <select id="candidateSelect"></select>
+                  <select id="moduleSelect"></select>
+                  <button class="gold" id="startExam">一键抽题</button>
+                  <span id="paperInfo">按比赛方案从各类型题库自动抽取整套试卷</span>
+                </div>
+                <article class="question">
+                  <h3 id="questionTitle"></h3>
+                  <div id="optionList"></div>
+                </article>
+                <div class="actions">
+                  <button id="prevQuestion">上一题</button>
+                  <button id="nextQuestion">下一题</button>
+                  <button id="markQuestion">标记</button>
+                  <button class="primary" id="submitExam">提交试卷</button>
+                  <span id="questionProgress">0 / 0</span>
+                </div>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-header"><h3>考生摄像头</h3><span id="cameraState">未调用</span></div>
+              <div class="video-box">
+                <video id="localVideo" autoplay playsinline muted hidden></video>
+                <div class="placeholder" id="videoPlaceholder">点击“调取摄像头”后，浏览器会请求摄像头权限。</div>
+              </div>
+              <div class="status-list">
+                <button class="primary" id="startCamera">调取摄像头</button>
+                <div class="status-row"><span>考生</span><strong id="cameraCandidate">未选择</strong></div>
+                <div class="status-row"><span>班组</span><strong id="cameraTeam">--</strong></div>
+                <div class="status-row"><span>远程汇聚</span><strong>需后端/WebRTC</strong></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="monitorView">
+          <div class="monitor-grid">
+            <section class="panel">
+              <div class="panel-header"><h3>视频监考墙</h3><span>点击考生查看右侧详情</span></div>
+              <div class="camera-grid" id="cameraGrid"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-header"><h3>监控详情</h3><span id="monitorHint">已选中</span></div>
+              <div class="detail" id="monitorDetail"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="bankView">
+          <div class="settings-grid">
+            <section class="panel">
+              <div class="panel-header"><h3>题库查看</h3><span id="bankCount">0题</span></div>
+              <div class="table-wrap">
+                <div class="upload-row">
+                  <input type="file" id="bankFile" accept=".csv,.json" />
+                  <button class="gold" id="uploadBank">上传题库</button>
+                  <button id="exportBank">导出题库</button>
+                </div>
+                <div class="hint">CSV表头：模块,题型,题干,A,B,C,D,答案,分值。也支持同字段 JSON 数组。</div>
+                <div style="overflow:auto; max-height: 560px;">
+                  <table>
+                    <thead><tr><th>模块</th><th>题型</th><th>题干</th><th>答案</th><th>分值</th></tr></thead>
+                    <tbody id="bankTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-header"><h3>上传说明</h3><span>静态网页可用</span></div>
+              <ol class="settings-body">
+                <li>上传功能在浏览器本地解析 CSV/JSON，不会覆盖服务器文件。</li>
+                <li>上传后题库保存到本机浏览器 localStorage，可立即用于在线考试。</li>
+                <li>导出会下载当前题库 CSV，便于备份或分发。</li>
+                <li>如需多人共享同一题库、统一成绩入库，需要部署后端接口。</li>
+              </ol>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="settingsView">
+          <div class="settings-grid">
+            <section class="panel">
+              <div class="panel-header"><h3>人员与班组</h3><span>班组成绩=班组个人平均分</span></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>姓名</th><th>班组</th><th>个人成绩</th><th>状态</th></tr></thead>
+                  <tbody id="peopleTable"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-header"><h3>唯一排名规则</h3><span>不设置并列名次</span></div>
+              <ol class="settings-body">
+                <li>个人排名：总分、正确率、用时、提交顺序逐级排序。</li>
+                <li>班组成绩：取班组内已参赛人员个人成绩平均分。</li>
+                <li>班组排名：平均分、平均正确率、平均用时、班组名称逐级排序。</li>
+                <li>摄像头监控：点击监考墙任一考生可查看详情并标记异常。</li>
+              </ol>
+            </section>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const peopleSource = [
+      {"name":"田克刚","group":"张陆彬班组"},{"name":"孙宏方","group":"孙宏方班组"},{"name":"方博","group":"张陆彬班组"},{"name":"朱敖源","group":"孙宏方班组"},{"name":"华斌","group":"孙宏方班组"},{"name":"江瀚","group":"孙宏方班组"},{"name":"陈曦","group":"孙宏方班组"},{"name":"梁状","group":"孙宏方班组"},{"name":"王翔","group":"孙宏方班组"},{"name":"卢丰聪","group":"孙宏方班组"},{"name":"方泽晨","group":"孙宏方班组"},{"name":"朱小舟","group":"孙宏方班组"},{"name":"叶家辉","group":"孙宏方班组"},{"name":"韩海霖","group":"刘威班组"},{"name":"林萌","group":"刘威班组"},{"name":"高克春","group":"刘威班组"},{"name":"赵佳兴","group":"刘威班组"},{"name":"覃亚飞","group":"刘威班组"},{"name":"杨亮","group":"刘威班组"},{"name":"张娟","group":"孙宏方班组"},{"name":"黄耀飞","group":"刘威班组"},{"name":"刘威","group":"刘威班组"},{"name":"张莹","group":"刘威班组"},{"name":"史小楠","group":"张陆彬班组"},{"name":"苏小博","group":"刘威班组"},{"name":"鲁泽智","group":"刘威班组"},{"name":"武学超","group":"张陆彬班组"},{"name":"陈林漳","group":"张陆彬班组"},{"name":"李慧君","group":"张陆彬班组"},{"name":"钱常亮","group":"张陆彬班组"},{"name":"杜丰广","group":"张陆彬班组"},{"name":"彭小蓉","group":"刘威班组"},{"name":"许诚","group":"张陆彬班组"},{"name":"徐胜峰","group":"张陆彬班组"},{"name":"张陆彬","group":"张陆彬班组"},{"name":"汪理想","group":"张陆彬班组"},{"name":"梅浩东","group":"张陆彬班组"},{"name":"薛媛","group":"张陆彬班组"},{"name":"徐仕军","group":"孙宏方班组"},{"name":"李龙飞","group":"张陆彬班组"},{"name":"顾鹤轩","group":"孙宏方班组"},{"name":"张赫","group":"刘威班组"}
+    ];
+    const modules = [
+      { name: "安全知识", points: 20, minutes: 15, progress: 76 },
+      { name: "手册修订", points: 20, minutes: 15, progress: 54 },
+      { name: "新规章", points: 20, minutes: 15, progress: 38 },
+      { name: "签派放行", points: 20, minutes: 20, progress: 22 },
+      { name: "运行控制", points: 20, minutes: 20, progress: 10 }
+    ];
+    const defaultBank = [
+      { module: "安全知识", type: "单选", title: "安全风险分级管控中，发现运行风险上升且可能影响航班正常执行时，签派员首先应当采取的措施是：", A: "等待航班落地后再复盘", B: "按程序进行风险提示、协同研判并视情升级", C: "仅在个人记录中备注", D: "直接取消航班", answer: "B", score: 10 },
+      { module: "安全知识", type: "单选", title: "发现隐患后，正确的闭环管理顺序是：", A: "记录、评估、整改、验证、销号", B: "口头提醒后结束", C: "只在班后会讨论", D: "等监管检查时再处理", answer: "A", score: 10 },
+      { module: "安全知识", type: "单选", title: "运行控制岗位落实安全责任时，最重要的基础是：", A: "只追求正点", B: "熟悉职责边界并按程序执行", C: "减少信息通报", D: "经验替代程序", answer: "B", score: 10 },
+      { module: "手册修订", type: "单选", title: "手册新修订内容涉及放行校核要求时，线上答题重点应考察：", A: "是否能背诵章节名称", B: "是否理解适用场景、接口职责和记录要求", C: "是否熟悉办公软件", D: "是否能完成排版", answer: "B", score: 10 },
+      { module: "手册修订", type: "单选", title: "手册程序发生变化后，一线人员应优先确认：", A: "新旧差异和生效要求", B: "文件页数", C: "字体大小", D: "通知标题", answer: "A", score: 10 },
+      { module: "手册修订", type: "单选", title: "签派放行记录归档要求调整后，正确做法是：", A: "按新要求记录并留存依据", B: "沿用个人习惯", C: "只保存截图", D: "不需要复核", answer: "A", score: 10 },
+      { module: "新规章", type: "单选", title: "新规章应用题的评分重点应优先关注：", A: "条款依据和运行应用是否一致", B: "答题文字是否最长", C: "是否使用固定模板", D: "是否只选择保守答案", answer: "A", score: 10 },
+      { module: "新规章", type: "单选", title: "涉及特殊机场运行要求时，签派员应重点核查：", A: "航班号是否顺口", B: "机场分类、天气标准和运行限制", C: "餐食保障", D: "旅客座位偏好", answer: "B", score: 10 },
+      { module: "新规章", type: "单选", title: "监管检查发现问题后的举一反三，核心是：", A: "形成风险识别和整改闭环", B: "只回复已知悉", C: "只处理被检查航班", D: "等待下一次提醒", answer: "A", score: 10 },
+      { module: "签派放行", type: "单选", title: "签派放行前对备降机场的判断，应综合考虑天气、保障能力、运行限制和：", A: "值机柜台数量", B: "航路、油量和机组运行条件", C: "旅客餐食类型", D: "公司宣传要求", answer: "B", score: 10 },
+      { module: "签派放行", type: "单选", title: "MEL/CDL 对航班运行产生影响时，放行前应：", A: "确认限制、性能影响和附加程序", B: "只看故障名称", C: "无需通知机组", D: "默认不影响", answer: "A", score: 10 },
+      { module: "签派放行", type: "单选", title: "临时改航校核中，最不能遗漏的是：", A: "新航路天气、油量、备降和运行限制", B: "航班宣传语", C: "座位图", D: "客舱广播", answer: "A", score: 10 },
+      { module: "运行控制", type: "单选", title: "运行中出现目的地雷雨且备降资源紧张时，运行控制处置应强调：", A: "单点决策", B: "动态监控、协同通报、风险升级和闭环记录", C: "只看计划落地时间", D: "不需要通知相关席位", answer: "B", score: 10 },
+      { module: "运行控制", type: "单选", title: "航班滑回后再次放行，运行控制应重点关注：", A: "机组值勤、故障状态、天气和保障条件", B: "旅客喜好", C: "航班宣传图片", D: "候机楼颜色", answer: "A", score: 10 },
+      { module: "运行控制", type: "单选", title: "多航班同时受流控影响时，运控决策应优先保障：", A: "安全底线和运行风险可控", B: "任意航班先走", C: "减少沟通", D: "只看单一航班", answer: "A", score: 10 }
+    ];
+    function completeDefaultBank(bank){
+      return modules.flatMap(module => {
+        const existing = bank.filter(q => q.module === module.name);
+        const needed = Math.max(0, 10 - existing.length);
+        const extras = Array.from({ length: needed }, (_, i) => ({
+          module: module.name,
+          type: i % 3 === 0 ? "判断" : "单选",
+          title: `${module.name}模块补充题${i + 1}：线上考试中，签派员处理相关业务时应优先坚持的原则是：`,
+          A: "仅凭个人经验快速处理",
+          B: "依据规章手册、风险研判和运行协同要求执行",
+          C: "等待他人完成全部判断",
+          D: "只关注航班正常率",
+          answer: "B",
+          score: 2
+        }));
+        return [...existing, ...extras].slice(0, 10);
+      });
+    }
+    const expandedDefaultBank = completeDefaultBank(defaultBank);
+    const key = "contestSystemV7";
+    const saved = JSON.parse(localStorage.getItem(key) || "null");
+    const state = saved || {
+      view: "dashboard",
+      rankMode: "personal",
+      activeModule: 0,
+      selected: 0,
+      currentQuestion: 0,
+      answers: {},
+      bank: expandedDefaultBank,
+      examPaper: [],
+      paperSeq: 0,
+      seq: 1,
+      feed: ["系统已加载人员与班组信息，班组成绩按个人平均分计算。"],
+      candidates: peopleSource.map((p, i) => ({
+        id: i + 1, name: p.name, group: p.group, online: true, camera: i % 7 !== 0,
+        submitted: false, score: 0, accuracy: 0, timeSec: 0, submittedAt: 1000 + i, moduleScores: {},
+        status: i % 11 === 0 ? "warn" : "ok"
+      }))
+    };
+    state.bank ||= expandedDefaultBank;
+    state.examPaper ||= [];
+    state.paperSeq ||= 0;
+    state.answers ||= {};
+    let examStart = null;
+    let stream = null;
+    let moduleSeconds = modules[state.activeModule].minutes * 60;
+    const $ = id => document.getElementById(id);
+    function save(){ localStorage.setItem(key, JSON.stringify(state)); }
+    function time(s){ const m = Math.floor(Math.max(0,s)/60).toString().padStart(2,"0"); const x = Math.max(0,s%60).toString().padStart(2,"0"); return `${m}:${x}`; }
+    function stamp(){ return new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"}); }
+    function feed(text){ state.feed.unshift(`${stamp()}|${text}`); state.feed = state.feed.slice(0,20); save(); renderFeed(); }
+    function normTime(x){ return x.timeSec > 0 ? x.timeSec : Number.MAX_SAFE_INTEGER; }
+    function rankedPeople(){ return [...state.candidates].sort((a,b)=> b.score-a.score || b.accuracy-a.accuracy || normTime(a)-normTime(b) || a.submittedAt-b.submittedAt || a.id-b.id); }
+    function teamRows(){
+      const map = new Map();
+      state.candidates.forEach(c => {
+        if (!map.has(c.group)) map.set(c.group, { name: c.group, members: 0, submitted: 0, total: 0, acc: 0, time: 0 });
+        const g = map.get(c.group);
+        g.members++;
+        if (c.submitted) { g.submitted++; g.total += c.score; g.acc += c.accuracy; g.time += c.timeSec; }
+      });
+      return [...map.values()].map(g => ({
+        ...g,
+        avg: g.submitted ? +(g.total / g.submitted).toFixed(1) : 0,
+        avgAcc: g.submitted ? +(g.acc / g.submitted).toFixed(1) : 0,
+        avgTime: g.submitted ? Math.round(g.time / g.submitted) : 0
+      })).sort((a,b)=> b.avg-a.avg || b.avgAcc-a.avgAcc || (a.avgTime || 999999)-(b.avgTime || 999999) || a.name.localeCompare(b.name, "zh-CN"));
+    }
+    function shuffle(list){
+      return [...list].sort(() => Math.random() - 0.5);
+    }
+    function drawExamPaper(){
+      const perModule = 10;
+      const paper = modules.flatMap(module => {
+        const pool = state.bank.filter(q => q.module === module.name);
+        const typed = [...new Set(pool.map(q => q.type || "未分类"))];
+        const firstPass = typed.map(type => shuffle(pool.filter(q => (q.type || "未分类") === type))[0]).filter(Boolean);
+        const rest = shuffle(pool.filter(q => !firstPass.includes(q)));
+        return [...firstPass, ...rest].slice(0, perModule);
+      });
+      state.examPaper = paper.length ? paper : shuffle(state.bank).slice(0, Math.min(50, state.bank.length));
+      state.paperSeq = (state.paperSeq || 0) + 1;
+      state.currentQuestion = 0;
+      const firstModule = modules.findIndex(m => state.examPaper[0]?.module === m.name);
+      if (firstModule >= 0) state.activeModule = firstModule;
+      examStart = Date.now();
+      $("examState").textContent = "作答中";
+      feed(`${state.candidates[state.selected].name} 一键抽取试卷，共${state.examPaper.length}题。`);
+      save();
+      render();
+    }
+    function activeQuestions(){
+      if (Array.isArray(state.examPaper) && state.examPaper.length) return state.examPaper;
+      const fallback = modules.flatMap(module => state.bank.filter(q => q.module === module.name).slice(0, 10));
+      return fallback.length ? fallback : state.bank;
+    }
+    function answerKey(index){
+      return `${state.selected}-paper-${state.paperSeq || 0}-${index}`;
+    }
+    function renderNav(){
+      document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view === state.view));
+      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === `${state.view}View`));
+      document.querySelectorAll("[data-rank]").forEach(b => b.classList.toggle("active", b.dataset.rank === state.rankMode));
+    }
+    function renderTop(){
+      const p = rankedPeople()[0], t = teamRows()[0];
+      $("topLeader").textContent = `${p.name} ${p.score}`;
+      $("topTeam").textContent = `${t.name.replace("班组","")} ${t.avg}`;
+      $("activeModule").textContent = modules[state.activeModule].name;
+    }
+    function renderMetrics(){
+      $("sideOnline").textContent = `${state.candidates.filter(c=>c.online).length}/${state.candidates.length}`;
+      $("metricOnline").textContent = state.candidates.length;
+      $("metricSubmitted").textContent = state.candidates.filter(c=>c.submitted).length;
+      $("metricCamera").textContent = state.candidates.filter(c=>c.camera && c.status !== "danger").length;
+      $("metricModule").textContent = `${state.activeModule + 1}/5`;
+      $("metricTimer").textContent = time(moduleSeconds);
+      const submitted = state.candidates.filter(c=>c.submitted);
+      const teams = teamRows();
+      $("metricTeams").textContent = teams.length;
+      $("metricBank").textContent = state.bank.length;
+      $("metricAverage").textContent = submitted.length ? Math.round(submitted.reduce((s,c)=>s+c.score,0)/submitted.length) : 0;
+      $("metricWarnings").textContent = state.candidates.filter(c=>c.status !== "ok").length;
+      $("miniBest").textContent = rankedPeople()[0]?.score ?? 0;
+      $("miniTeam").textContent = (teams[0]?.name || "--").replace("班组","");
+      $("miniPending").textContent = state.candidates.filter(c=>!c.submitted).length;
+      $("miniWarn").textContent = state.candidates.filter(c=>c.status !== "ok").length;
+    }
+    function renderModules(){
+      $("moduleList").innerHTML = modules.map((m,i)=>`
+        <article class="module-row ${i===state.activeModule?"active":""}" data-module="${i}">
+          <span class="num">${i+1}</span>
+          <span><strong>${m.name}</strong><small>${m.points}分 · ${i===state.activeModule ? "当前作答模块" : "待作答/已作答"}</small></span>
+          <strong>${m.points}分</strong>
+        </article>`).join("");
+      document.querySelectorAll("[data-module]").forEach(row => row.onclick = () => { state.activeModule = +row.dataset.module; state.currentQuestion = 0; moduleSeconds = modules[state.activeModule].minutes * 60; feed(`切换模块：${modules[state.activeModule].name}`); render(); });
+    }
+    function renderRanks(){
+      $("personalRankList").innerHTML = rankedPeople().slice(0,6).map((c,i)=>`
+        <article class="rank-row" data-person="${c.id}"><span class="num">${i+1}</span><span class="rank-info"><strong>${c.name}</strong><small>${c.group} · 正确率 ${c.accuracy}% · 用时 ${c.timeSec ? time(c.timeSec) : "--:--"}</small></span><span class="rank-score">${c.score}</span></article>`).join("");
+      $("teamRankList").innerHTML = teamRows().map((g,i)=>`
+        <article class="rank-row" data-team="${g.name}"><span class="num">${i+1}</span><span class="rank-info"><strong>${g.name}</strong><small>已提交 ${g.submitted}/${g.members} · 平均正确率 ${g.avgAcc}%</small></span><span class="rank-score">${g.avg}</span></article>`).join("");
+      $("allModuleRankGrid").innerHTML = modules.map(module => {
+        const moduleName = module.name;
+        const moduleRank = [...state.candidates].sort((a,b)=> (b.moduleScores?.[moduleName] || 0) - (a.moduleScores?.[moduleName] || 0) || a.submittedAt - b.submittedAt || a.id - b.id);
+        const rows = moduleRank.slice(0,3).map((c,i)=>`
+          <div class="module-mini-row" data-module-person="${c.id}" data-module-name="${moduleName}">
+            <span class="mini-no">${i+1}</span>
+            <span class="module-mini-name">${c.name}</span>
+            <span class="module-mini-score">${c.moduleScores?.[moduleName] || 0}</span>
+          </div>`).join("");
+        return `<section class="module-rank-card"><h4>${moduleName}</h4><div class="module-mini-rank">${rows}</div></section>`;
+      }).join("");
+      document.querySelectorAll("[data-person]").forEach(row => row.onclick = () => showPersonDetail(Number(row.dataset.person)));
+      document.querySelectorAll("[data-module-person]").forEach(row => row.onclick = () => showPersonDetail(Number(row.dataset.modulePerson), row.dataset.moduleName));
+      document.querySelectorAll("[data-team]").forEach(row => row.onclick = () => showTeamDetail(row.dataset.team));
+    }
+    function showPersonDetail(id, moduleName = null){
+      const c = state.candidates.find(x => x.id === id);
+      if (!c) return;
+      const moduleRows = modules.map(m => `<div class="mini-stat"><span>${m.name}</span><strong>${c.moduleScores?.[m.name] || 0}</strong></div>`).join("");
+      $("scoreDetail").innerHTML = `<h4>${c.name} · ${c.group} 打分详情${moduleName ? `（${moduleName}）` : ""}</h4>
+        <div class="score-detail-grid">
+          <div class="mini-stat"><span>总分</span><strong>${c.score}</strong></div>
+          <div class="mini-stat"><span>正确率</span><strong>${c.accuracy}%</strong></div>
+          <div class="mini-stat"><span>用时</span><strong>${c.timeSec ? time(c.timeSec) : "--:--"}</strong></div>
+          <div class="mini-stat"><span>提交序</span><strong>${c.submittedAt}</strong></div>
+          ${moduleRows}
+        </div>`;
+    }
+    function showTeamDetail(name){
+      const g = teamRows().find(x => x.name === name);
+      const members = state.candidates.filter(c => c.group === name).sort((a,b)=>b.score-a.score);
+      if (!g) return;
+      $("scoreDetail").innerHTML = `<h4>${name} 班组打分详情</h4>
+        <div class="score-detail-grid">
+          <div class="mini-stat"><span>班组平均分</span><strong>${g.avg}</strong></div>
+          <div class="mini-stat"><span>已提交</span><strong>${g.submitted}/${g.members}</strong></div>
+          <div class="mini-stat"><span>平均正确率</span><strong>${g.avgAcc}%</strong></div>
+          <div class="mini-stat"><span>平均用时</span><strong>${g.avgTime ? time(g.avgTime) : "--:--"}</strong></div>
+        </div>
+        <div class="hint">${members.map(c => `${c.name}:${c.score}分`).join("，")}</div>`;
+    }
+    function renderSelectors(){
+      $("candidateSelect").innerHTML = state.candidates.map((c,i)=>`<option value="${i}" ${i===state.selected?"selected":""}>${c.name} · ${c.group}</option>`).join("");
+      $("moduleSelect").innerHTML = modules.map((m,i)=>`<option value="${i}" ${i===state.activeModule?"selected":""}>${m.name}</option>`).join("");
+      const c = state.candidates[state.selected];
+      $("cameraCandidate").textContent = c.name;
+      $("cameraTeam").textContent = c.group;
+    }
+    function renderQuestion(){
+      const qs = activeQuestions();
+      if (state.currentQuestion >= qs.length) state.currentQuestion = 0;
+      const q = qs[state.currentQuestion];
+      const keyA = answerKey(state.currentQuestion);
+      $("questionTitle").textContent = `${state.currentQuestion+1}. 【${q.module}｜${q.type || "题目"}】${q.title}`;
+      $("optionList").innerHTML = ["A","B","C","D"].map(k=>`
+        <label class="option"><input type="radio" name="answer" value="${k}" ${state.answers[keyA]===k?"checked":""}><span>${k}. ${q[k] || ""}</span></label>`).join("");
+      document.querySelectorAll("input[name='answer']").forEach(input => input.onchange = () => { state.answers[keyA] = input.value; save(); });
+      $("questionProgress").textContent = `${state.currentQuestion+1} / ${qs.length}`;
+      if ($("paperInfo")) $("paperInfo").textContent = `已抽取${qs.length}题，覆盖${new Set(qs.map(x => x.module)).size}个模块、${new Set(qs.map(x => x.type || "题目")).size}类题型`;
+      $("examState").textContent = state.candidates[state.selected].submitted ? "已提交" : (state.examPaper?.length ? "作答中" : "未提交");
+    }
+    function renderMonitor(){
+      $("cameraGrid").innerHTML = state.candidates.map((c,i)=>{
+        const cls = c.status === "danger" ? "danger" : c.status === "warn" ? "warn" : "";
+        const text = c.status === "danger" ? "异常" : c.status === "warn" ? "关注" : c.camera ? "在线" : "未接入";
+        return `<article class="camera-tile ${i===state.selected?"selected":""}" data-cam="${i}"><div class="camera-sim"></div><div class="tile-caption"><span><strong>${c.name}</strong><small>${c.group} · ${c.submitted?"已交卷":"作答中"}</small></span><span class="pill ${cls}">${text}</span></div></article>`;
+      }).join("");
+      document.querySelectorAll("[data-cam]").forEach(tile => tile.onclick = () => { state.selected = +tile.dataset.cam; feed(`调取监控详情：${state.candidates[state.selected].name}`); render(); });
+      const c = state.candidates[state.selected];
+      $("monitorHint").textContent = `${c.name} · ${c.group}`;
+      $("monitorDetail").innerHTML = `
+        <div class="monitor-video" id="monitorVideoBox"><div class="placeholder">点击“调取该考生画面”后显示本机摄像头实时预览；真实远程视频需 WebRTC 后端。</div></div>
+        <div class="detail-card"><h4>${c.name}</h4><div class="detail-row"><span>班组</span><strong>${c.group}</strong></div><div class="detail-row"><span>状态</span><strong>${c.submitted ? "已交卷" : "作答中"}</strong></div><div class="detail-row"><span>成绩</span><strong>${c.score}分</strong></div><div class="detail-row"><span>正确率</span><strong>${c.accuracy}%</strong></div><div class="detail-row"><span>用时</span><strong>${c.timeSec ? time(c.timeSec) : "--:--"}</strong></div><div class="detail-row"><span>摄像头</span><strong>${c.camera ? "已接入" : "未接入"}</strong></div></div>
+        <button class="primary" id="monitorCamera">调取该考生画面</button><button id="markBad">标记异常</button><button id="markOk">恢复正常</button><button class="gold" id="jumpExam">切换至该考生考试</button>
+        <div class="detail-card"><h4>监考动态</h4><div class="feed" id="feed"></div></div>`;
+      $("monitorCamera").onclick = startCamera;
+      $("markBad").onclick = () => { c.status = "danger"; feed(`${c.name} 被标记为监考异常。`); render(); };
+      $("markOk").onclick = () => { c.status = "ok"; feed(`${c.name} 监考状态恢复正常。`); render(); };
+      $("jumpExam").onclick = () => { state.view = "exam"; render(); };
+      attachMonitorVideo();
+      attachTileVideo();
+      renderFeed();
+    }
+    function renderFeed(){
+      const html = state.feed.map(item=>{ const [t, txt] = item.includes("|") ? item.split("|") : ["--:--", item]; return `<div class="feed-item"><span class="feed-time">${t}</span><span>${txt}</span></div>`; }).join("");
+      const f = $("feed"); if (f) f.innerHTML = html;
+      const df = $("dashboardFeed"); if (df) df.innerHTML = html;
+    }
+    function toast(text){
+      $("toast").textContent = text;
+      $("toast").classList.add("show");
+      setTimeout(() => $("toast").classList.remove("show"), 2600);
+    }
+    function renderBank(){
+      $("bankCount").textContent = `${state.bank.length}题`;
+      $("bankTable").innerHTML = state.bank.map(q=>`<tr><td>${q.module}</td><td>${q.type}</td><td>${q.title}</td><td>${q.answer}</td><td>${q.score}</td></tr>`).join("");
+    }
+    function renderPeople(){
+      $("peopleTable").innerHTML = state.candidates.map(c=>`<tr><td>${c.name}</td><td>${c.group}</td><td>${c.score}</td><td>${c.submitted ? "已提交" : "未提交"}</td></tr>`).join("");
+    }
+    function render(){
+      renderNav(); renderTop(); renderMetrics(); renderModules(); renderRanks(); renderSelectors(); renderQuestion(); renderMonitor(); renderBank(); renderPeople(); save();
+    }
+    function scoreExam(){
+      const qs = activeQuestions();
+      const c = state.candidates[state.selected];
+      let correct = 0, earned = 0, total = 0;
+      const moduleTotals = new Map();
+      qs.forEach((q,i)=>{
+        const points = Number(q.score || 10);
+        total += points;
+        if (!moduleTotals.has(q.module)) moduleTotals.set(q.module, { earned: 0, total: 0 });
+        moduleTotals.get(q.module).total += points;
+        if (state.answers[answerKey(i)] === q.answer) {
+          correct++;
+          earned += points;
+          moduleTotals.get(q.module).earned += points;
+        }
+      });
+      const score = total ? Math.round(earned / total * 100) : 0;
+      const used = examStart ? Math.max(1, Math.round((Date.now() - examStart) / 1000)) : 860 + state.selected;
+      if (!c.moduleScores) c.moduleScores = {};
+      modules.forEach(m => {
+        const row = moduleTotals.get(m.name);
+        c.moduleScores[m.name] = row?.total ? Math.round(row.earned / row.total * 100) : 0;
+      });
+      c.score = score; c.accuracy = score; c.timeSec = used; c.submitted = true; c.submittedAt = state.seq++;
+      c.camera = false;
+      stopCamera();
+      feed(`${c.name} 提交试卷：${score}分，用时${time(used)}。`);
+      toast(`提交成功：${c.name} 得分 ${score} 分，用时 ${time(used)}`);
+      render();
+    }
+    function attachMonitorVideo(){
+      const box = $("monitorVideoBox");
+      if (!box || !stream) return;
+      box.innerHTML = "";
+      const v = document.createElement("video");
+      v.autoplay = true; v.playsInline = true; v.muted = true; v.srcObject = stream;
+      box.appendChild(v);
+    }
+    function attachTileVideo(){
+      if (!stream) return;
+      const tile = document.querySelector(`[data-cam="${state.selected}"]`);
+      if (!tile) return;
+      const existing = tile.querySelector("video");
+      if (existing) existing.remove();
+      const v = document.createElement("video");
+      v.autoplay = true; v.playsInline = true; v.muted = true; v.srcObject = stream;
+      tile.prepend(v);
+    }
+    function stopCamera(){
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      const local = $("localVideo");
+      if (local) { local.srcObject = null; local.hidden = true; }
+      if ($("videoPlaceholder")) $("videoPlaceholder").hidden = false;
+      if ($("cameraState")) $("cameraState").textContent = "交卷后已关闭";
+    }
+    async function startCamera(){
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        $("localVideo").srcObject = stream; $("localVideo").hidden = false; $("videoPlaceholder").hidden = true; $("cameraState").textContent = "本机摄像头已接入";
+        const c = state.candidates[state.selected]; c.camera = true; c.status = "ok"; feed(`${c.name} 摄像头已接入。`); render();
+        attachMonitorVideo();
+        attachTileVideo();
+      } catch(e) { $("cameraState").textContent = "摄像头调用失败"; feed(`摄像头调用失败：${e.message}`); }
+    }
+    function csvEscape(v){ const s = String(v ?? ""); return /[",\r\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; }
+    function exportBank(){
+      const headers = ["模块","题型","题干","A","B","C","D","答案","分值"];
+      const rows = state.bank.map(q=>[q.module,q.type,q.title,q.A,q.B,q.C,q.D,q.answer,q.score]);
+      const csv = [headers, ...rows].map(r=>r.map(csvEscape).join(",")).join("\r\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "运行控制部比赛题库.csv"; a.click(); URL.revokeObjectURL(a.href);
+    }
+    function parseCsv(text){
+      const lines = text.replace(/^\\ufeff/,"").split(/\\r?\\n/).filter(Boolean);
+      const headers = lines.shift().split(",").map(x=>x.trim());
+      return lines.map(line=>{
+        const cols = line.match(/(\"([^\"]|\"\")*\"|[^,]*)/g).filter((_,i)=>i%2===0).map(x=>x.replace(/^\"|\"$/g,"").replace(/\"\"/g,'"').trim());
+        const row = Object.fromEntries(headers.map((h,i)=>[h, cols[i] || ""]));
+        return { module: row["模块"], type: row["题型"] || "单选", title: row["题干"], A: row.A, B: row.B, C: row.C, D: row.D, answer: row["答案"], score: Number(row["分值"] || 20) };
+      }).filter(q=>q.module && q.title);
+    }
+    function uploadBank(){
+      const file = $("bankFile").files[0]; if (!file) { alert("请选择 CSV 或 JSON 题库文件"); return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const text = String(reader.result);
+          const data = file.name.toLowerCase().endsWith(".json") ? JSON.parse(text) : parseCsv(text);
+          state.bank = data.map(q=>({ module:q.module||q["模块"], type:q.type||q["题型"]||"单选", title:q.title||q["题干"], A:q.A, B:q.B, C:q.C, D:q.D, answer:q.answer||q["答案"], score:Number(q.score||q["分值"]||20) })).filter(q=>q.module && q.title);
+          feed(`题库上传成功：${state.bank.length}题。`); render();
+        } catch(e) { alert(`题库解析失败：${e.message}`); }
+      };
+      reader.readAsText(file, "utf-8");
+    }
+    document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{ state.view=b.dataset.view; render(); });
+    document.querySelectorAll("[data-rank]").forEach(b=>b.onclick=()=>{ state.rankMode=b.dataset.rank; render(); });
+    $("candidateSelect").onchange = () => { state.selected = +$("candidateSelect").value; render(); };
+    $("moduleSelect").onchange = () => { state.activeModule = +$("moduleSelect").value; state.currentQuestion = 0; moduleSeconds = modules[state.activeModule].minutes * 60; render(); };
+    $("startExam").onclick = drawExamPaper;
+    $("prevQuestion").onclick = () => { state.currentQuestion = Math.max(0, state.currentQuestion - 1); render(); };
+    $("nextQuestion").onclick = () => {
+      const last = activeQuestions().length - 1;
+      if (state.currentQuestion >= last) { toast("已经是最后一题"); return; }
+      state.currentQuestion += 1;
+      render();
+    };
+    $("markQuestion").onclick = () => feed(`${state.candidates[state.selected].name} 标记第${state.currentQuestion+1}题。`);
+    $("submitExam").onclick = scoreExam;
+    $("startCamera").onclick = startCamera;
+    $("exportBank").onclick = exportBank;
+    $("uploadBank").onclick = uploadBank;
+    setInterval(()=>{ moduleSeconds = Math.max(0, moduleSeconds - 1); renderMetrics(); }, 1000);
+    window.contestApp = { state, modules, render, renderMetrics, renderRanks, renderQuestion, feed, toast, activeQuestions, answerKey, stopCamera, startCamera };
+    render();
+  </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="backend-client.js"></script>
+</body>
+</html>
