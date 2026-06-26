@@ -139,11 +139,57 @@ function loadStore() {
 }
 
 const store = loadStore();
+function syncPeopleToStore() {
+  const people = readPeople();
 
+  if (!people.length) {
+    console.warn("未读取到人员与班组信息，继续使用当前 store 数据。");
+    return;
+  }
+
+  const oldByName = new Map((store.candidates || []).map(c => [c.name, c]));
+
+  const candidates = people.map((p, index) => {
+    const old = oldByName.get(p.name) || {};
+    return {
+      id: index + 1,
+      name: p.name,
+      group: p.group,
+      online: old.online || false,
+      camera: old.camera || false,
+      submitted: old.submitted || false,
+      score: old.score || 0,
+      accuracy: old.accuracy || 0,
+      timeSec: old.timeSec || 0,
+      submittedAt: old.submittedAt || 1000 + index,
+      moduleScores: old.moduleScores || {},
+      status: old.status || "ok"
+    };
+  });
+
+  store.candidates = candidates;
+
+  store.users = [
+    { id: "admin", username: "admin", password: "admin2026", role: "admin", name: "管理员" },
+    { id: "monitor", username: "monitor", password: "monitor2026", role: "monitor", name: "监考员" },
+    ...candidates.map(c => ({
+      id: `u-${c.id}`,
+      username: c.name,
+      password: "123456",
+      role: "candidate",
+      name: c.name,
+      candidateId: c.id
+    }))
+  ];
+
+  saveStore();
+  console.log(`已同步人员与班组信息：${candidates.length} 人`);
+}
 function saveStore() {
   fs.writeFileSync(DB_FILE, JSON.stringify(store, null, 2), "utf8");
 }
 
+syncPeopleToStore();
 function publicCandidate(c) {
   return {
     id: c.id,
