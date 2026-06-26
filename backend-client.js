@@ -29,13 +29,18 @@
   }
 
   async function request(url, options = {}) {
-    const res = await fetch(`${API_BASE}${url}`, {
-      ...options,
-      headers: authHeaders({
-        ...(options.body && !(options.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
-        ...(options.headers || {})
-      })
-    });
+    let res;
+    try {
+      res = await fetch(`${API_BASE}${url}`, {
+        ...options,
+        headers: authHeaders({
+          ...(options.body && !(options.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
+          ...(options.headers || {})
+        })
+      });
+    } catch {
+      throw new Error("网络连接失败，请稍后重试");
+    }
     if (!res.ok) {
       let message = `请求失败：${res.status}`;
       try { message = (await res.json()).error || message; } catch {}
@@ -54,7 +59,7 @@
     mask.innerHTML = `
       <form class="login-card" id="backendLoginForm">
         <h2>比赛系统登录</h2>
-        <p>管理员：admin/admin2026；监考员：monitor/monitor2026；考生：姓名/123456。</p>
+        <p>请使用活动组织方发放的账号登录。考生账号通常为本人姓名，密码以现场通知为准。</p>
         <label>账号<input id="backendUsername" autocomplete="username" placeholder="请输入账号或姓名"></label>
         <label>密码<input id="backendPassword" type="password" autocomplete="current-password" placeholder="请输入密码"></label>
         <div class="login-error" id="backendLoginError"></div>
@@ -77,6 +82,7 @@
         sessionStorage.setItem("contestUser", JSON.stringify(api.user));
         mask.remove();
         renderBadge();
+        applyRoleAccess();
         connectSocket();
         await syncState();
         app.toast(`登录成功：${api.user.name}`);
@@ -109,6 +115,7 @@
     api.user = null;
     if (api.socket) api.socket.disconnect();
     document.querySelector(".login-badge")?.remove();
+    resetRoleAccess();
     renderLogin();
   }
 
@@ -147,12 +154,40 @@
     if (api.user?.candidateId) {
       const index = app.state.candidates.findIndex(c => c.id === api.user.candidateId);
       if (index >= 0) app.state.selected = index;
+      app.state.view = "exam";
     }
     if (payload.questionsCount) {
       const metric = document.getElementById("metricBank");
       if (metric) metric.textContent = payload.questionsCount;
     }
     app.render();
+    applyRoleAccess();
+  }
+
+  function applyRoleAccess() {
+    if (!api.user) return;
+    const isCandidate = api.user.role === "candidate";
+    const hiddenViews = isCandidate ? ["dashboard", "monitor", "bank", "settings"] : [];
+    document.querySelectorAll(".nav [data-view]").forEach(button => {
+      const hide = hiddenViews.includes(button.dataset.view);
+      button.hidden = hide;
+      button.disabled = hide;
+    });
+    const candidateSelect = document.getElementById("candidateSelect");
+    if (candidateSelect) candidateSelect.disabled = isCandidate;
+    if (isCandidate && app.state.view !== "exam") {
+      app.state.view = "exam";
+      app.render();
+    }
+  }
+
+  function resetRoleAccess() {
+    document.querySelectorAll(".nav [data-view]").forEach(button => {
+      button.hidden = false;
+      button.disabled = false;
+    });
+    const candidateSelect = document.getElementById("candidateSelect");
+    if (candidateSelect) candidateSelect.disabled = false;
   }
 
   async function backendDrawExam() {
@@ -292,6 +327,7 @@
 
   if (api.user && api.token) {
     renderBadge();
+    applyRoleAccess();
     connectSocket();
     syncState().catch(() => renderLogin());
   } else {
