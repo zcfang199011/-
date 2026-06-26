@@ -372,6 +372,8 @@ app.post("/api/questions", auth(), (req, res) => {
     answer: q.answer || q["答案"],
     score: Number(q.score || q["分值"] || 2)
   })).filter(q => q.module && q.title);
+
+  store.exams = {};
   saveStore();
   emitState();
   res.json({ ok: true, count: store.questions.length });
