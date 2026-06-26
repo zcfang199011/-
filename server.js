@@ -139,6 +139,11 @@ function loadStore() {
 }
 
 const store = loadStore();
+
+function saveStore() {
+  fs.writeFileSync(DB_FILE, JSON.stringify(store, null, 2), "utf8");
+}
+
 function syncPeopleToStore() {
   const people = readPeople();
 
@@ -151,6 +156,7 @@ function syncPeopleToStore() {
 
   const candidates = people.map((p, index) => {
     const old = oldByName.get(p.name) || {};
+
     return {
       id: index + 1,
       name: p.name,
@@ -184,9 +190,6 @@ function syncPeopleToStore() {
 
   saveStore();
   console.log(`已同步人员与班组信息：${candidates.length} 人`);
-}
-function saveStore() {
-  fs.writeFileSync(DB_FILE, JSON.stringify(store, null, 2), "utf8");
 }
 
 syncPeopleToStore();
