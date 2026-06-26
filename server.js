@@ -10,7 +10,7 @@ const PORT = Number(process.env.PORT || 8765);
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
 const DB_FILE = path.join(DATA_DIR, "store.json");
-const PEOPLE_FILE = process.env.PEOPLE_FILE || "C:\\Users\\FANG\\Desktop\\技能比赛\\人员与班组信息.xlsx";
+cconst PEOPLE_FILE = process.env.PEOPLE_FILE || path.join(ROOT, "人员与班组信息.xlsx");
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "https://jade-tiramisu-f2c504.netlify.app,http://127.0.0.1:8765,http://localhost:8765")
   .split(",")
   .map(x => x.trim())
