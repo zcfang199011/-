@@ -122,7 +122,7 @@ function createStore() {
       }))
     ],
     candidates,
-    questions: seedQuestions(),
+    questions: [],
     exams: {},
     events: []
   };
