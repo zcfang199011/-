@@ -855,12 +855,30 @@
       $("cameraCandidate").textContent = c.name;
       $("cameraTeam").textContent = c.group;
     }
-    function renderQuestion(){
-      const qs = activeQuestions();
-      if (state.currentQuestion >= qs.length) state.currentQuestion = 0;
-      const q = qs[state.currentQuestion];
-      const keyA = answerKey(state.currentQuestion);
-      $("questionTitle").textContent = `${state.currentQuestion+1}. 【${q.module}｜${q.type || "题目"}】${q.title}`;
+function renderQuestion(){
+  const qs = activeQuestions();
+
+  if (!Array.isArray(qs) || qs.length === 0) {
+    $("questionTitle").textContent = "暂无试题，请先在题库管理中导入题库";
+    $("optionList").innerHTML = "";
+    $("questionProgress").textContent = "0 / 0";
+    return;
+  }
+
+  if (state.currentQuestion >= qs.length) state.currentQuestion = 0;
+
+  const q = qs[state.currentQuestion];
+
+  if (!q) {
+    $("questionTitle").textContent = "当前题目不存在，请重新抽题";
+    $("optionList").innerHTML = "";
+    $("questionProgress").textContent = `0 / ${qs.length}`;
+    return;
+  }
+
+  const keyA = answerKey(state.currentQuestion);
+
+  $("questionTitle").textContent = `${state.currentQuestion + 1}. 【${q.module || "未分类"}｜${q.type || "题目"}】${q.title || ""}`;
       $("optionList").innerHTML = ["A","B","C","D"].map(k=>`
         <label class="option"><input type="radio" name="answer" value="${k}" ${state.answers[keyA]===k?"checked":""}><span>${k}. ${q[k] || ""}</span></label>`).join("");
       document.querySelectorAll("input[name='answer']").forEach(input => input.onchange = () => { state.answers[keyA] = input.value; save(); });
