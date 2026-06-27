@@ -601,10 +601,10 @@
             <section class="panel">
               <div class="panel-header"><h3>上传说明</h3><span>静态网页可用</span></div>
               <ol class="settings-body">
-                <li>上传功能在浏览器本地解析 CSV/JSON，不会覆盖服务器文件。</li>
-                <li>上传后题库保存到本机浏览器 localStorage，可立即用于在线考试。</li>
-                <li>导出会下载当前题库 CSV，便于备份或分发。</li>
-                <li>如需多人共享同一题库、统一成绩入库，需要部署后端接口。</li>
+                <li>上传功能会将 CSV/JSON 题库提交到后端服务器。</li>
+                <li>上传成功后会覆盖后端旧题库，并清空旧试卷记录。</li>
+                <li>导出会下载当前后端题库 CSV，便于备份或分发。</li>
+                <li>多人登录时统一使用后端题库。</li>
               </ol>
             </section>
           </div>
