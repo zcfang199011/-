@@ -202,17 +202,31 @@ async function syncQuestions() {
     if (candidateSelect) candidateSelect.disabled = false;
   }
 
-  async function backendDrawExam() {
-    requireLogin();
-    const candidateId = app.state.candidates[app.state.selected]?.id;
-    const data = await request("/api/exam/draw", { method: "POST", body: JSON.stringify({ candidateId }) });
-    app.state.examPaper = data.questions;
-    app.state.paperSeq = (app.state.paperSeq || 0) + 1;
+async function backendDrawExam() {
+  requireLogin();
+
+  const candidateId = app.state.candidates[app.state.selected]?.id;
+
+  const data = await request("/api/exam/draw", {
+    method: "POST",
+    body: JSON.stringify({ candidateId })
+  });
+
+  if (!Array.isArray(data.questions) || data.questions.length === 0) {
+    app.state.examPaper = [];
     app.state.currentQuestion = 0;
-    app.state.answers = {};
-    app.toast(`后端已抽题：共${data.total}题`);
-    app.render();
+    app.toast("后端题库为空或题目模块不匹配，请先导入有效题库");
+    return;
   }
+
+  app.state.examPaper = data.questions;
+  app.state.paperSeq = (app.state.paperSeq || 0) + 1;
+  app.state.currentQuestion = 0;
+  app.state.answers = {};
+
+  app.toast(`后端已抽题：共${data.total}题`);
+  app.render();
+}
 
   async function backendSubmitExam() {
     requireLogin();
