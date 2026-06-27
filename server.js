@@ -393,8 +393,15 @@ app.post("/api/exam/draw", auth(), (req, res) => {
   const candidateId = user.role === "candidate" ? user.candidateId : Number(req.body?.candidateId || 0);
   const candidate = store.candidates.find(c => c.id === candidateId);
   if (!candidate) return res.status(400).json({ error: "未找到考生" });
-  const questions = drawQuestions();
-  const exam = {
+const questions = drawQuestions();
+
+if (!questions.length) {
+  return res.status(400).json({
+    error: "后端题库为空，或题库模块名称与比赛模块不匹配，请先导入有效题库"
+  });
+}
+
+ const exam = {
     id: crypto.randomUUID(),
     candidateId,
     questionIds: questions.map(q => q.id),
