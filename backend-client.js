@@ -140,11 +140,23 @@
     });
   }
 
-  async function syncState() {
-    const payload = await request("/api/state", { method: "GET" });
-    applyState(payload);
+async function syncState() {
+  const payload = await request("/api/state", { method: "GET" });
+  applyState(payload);
+  await syncQuestions();
+}
+  
+async function syncQuestions() {
+  try {
+    const data = await request("/api/questions", { method: "GET" });
+    if (Array.isArray(data.questions)) {
+      app.state.bank = data.questions;
+      app.render();
+    }
+  } catch (error) {
+    console.warn("后端题库同步失败：", error.message);
   }
-
+}
   function applyState(payload) {
     if (!payload?.candidates) return;
     app.state.candidates = payload.candidates.map(c => ({
@@ -235,16 +247,26 @@
     URL.revokeObjectURL(a.href);
   }
 
-  async function backendUploadBank() {
-    requireLogin();
-    const file = document.getElementById("bankFile")?.files?.[0];
-    if (!file) throw new Error("请选择题库文件");
-    const text = await file.text();
-    const questions = file.name.toLowerCase().endsWith(".json") ? JSON.parse(text) : parseCsv(text);
-    const result = await request("/api/questions", { method: "POST", body: JSON.stringify({ questions }) });
-    app.toast(`后端题库上传成功：${result.count}题`);
-    await syncState();
-  }
+async function backendUploadBank() {
+  requireLogin();
+  const file = document.getElementById("bankFile")?.files?.[0];
+  if (!file) throw new Error("请选择题库文件");
+
+  const text = await file.text();
+  const questions = file.name.toLowerCase().endsWith(".json")
+    ? JSON.parse(text)
+    : parseCsv(text);
+
+  const result = await request("/api/questions", {
+    method: "POST",
+    body: JSON.stringify({ questions })
+  });
+
+  app.toast(`后端题库上传成功：${result.count}题`);
+
+  await syncQuestions();
+  await syncState();
+}
 
   function parseCsv(text) {
     const rows = [];
