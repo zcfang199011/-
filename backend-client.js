@@ -417,7 +417,7 @@ async function backendResetNow() {
     }).catch(() => {});
   });
 
-  if (api.user && api.token) {
+ if (api.user && api.token) {
   renderBadge();
   applyRoleAccess();
   connectSocket();
@@ -431,5 +431,7 @@ async function backendResetNow() {
   });
 } else {
   renderLogin();
+}
+})();
 }
 })();
