@@ -999,6 +999,67 @@ document.querySelectorAll("[data-team]").forEach(row => {
 });
     }
 
+    function showWrongDetailModal(candidateId) {
+  const c = state.candidates.find(x => x.id === candidateId);
+  if (!c) return;
+
+  const wrongs = c.wrongQuestions || [];
+
+  const body = wrongs.length ? `
+    <table>
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>模块</th>
+          <th>题目</th>
+          <th>本人答案</th>
+          <th>正确答案</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${wrongs.map((w, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${w.module || ""}</td>
+            <td>
+              <strong>${w.title || ""}</strong>
+              <div class="hint">
+                A. ${w.A || ""}<br>
+                B. ${w.B || ""}<br>
+                C. ${w.C || ""}<br>
+                D. ${w.D || ""}
+              </div>
+            </td>
+            <td>${w.user || "未作答"}</td>
+            <td>${w.correct || ""}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  ` : `<div class="hint">该人员暂无错题。</div>`;
+
+  const modal = document.createElement("div");
+  modal.className = "score-modal-mask";
+  modal.innerHTML = `
+    <div class="score-modal">
+      <div class="score-modal-header">
+        <h3>${c.name} · 错题详情</h3>
+        <button type="button" class="score-modal-close">关闭</button>
+      </div>
+      <div class="score-modal-body">
+        ${body}
+      </div>
+    </div>
+  `;
+
+  modal.querySelector(".score-modal-close").onclick = () => modal.remove();
+  modal.onclick = e => {
+    if (e.target === modal) modal.remove();
+  };
+
+  document.body.appendChild(modal);
+}
+    
     function renderWrongStats() {
   const box = document.getElementById("wrongStatsBox");
   if (!box) return;
@@ -1006,6 +1067,7 @@ document.querySelectorAll("[data-team]").forEach(row => {
   const candidates = state.candidates || [];
 
   const personal = candidates.map(c => ({
+    id: c.id,
     name: c.name,
     group: c.group,
     wrongCount: (c.wrongQuestions || []).length,
@@ -1046,13 +1108,13 @@ document.querySelectorAll("[data-team]").forEach(row => {
         </tr>
       </thead>
       <tbody>
-        ${personal.map(c => `
-          <tr>
-            <td>${c.name}</td>
-            <td>${c.group}</td>
-            <td>${c.wrongCount}</td>
-          </tr>
-        `).join("")}
+    ${personal.map(c => `
+  <tr data-wrong-person="${c.id}" style="cursor:pointer">
+    <td>${c.name}</td>
+    <td>${c.group}</td>
+    <td>${c.wrongCount}</td>
+  </tr>
+`).join("")}
       </tbody>
     </table>
 
@@ -1075,7 +1137,9 @@ document.querySelectorAll("[data-team]").forEach(row => {
         `).join("")}
       </tbody>
     </table>
-  `;
+  `;box.querySelectorAll("[data-wrong-person]").forEach(row => {
+  row.onclick = () => showWrongDetailModal(Number(row.dataset.wrongPerson));
+});
 }
     
     function showPersonDetail(id, moduleName = null){
