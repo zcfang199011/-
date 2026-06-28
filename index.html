@@ -791,32 +791,90 @@
     }
     const expandedDefaultBank = completeDefaultBank(defaultBank);
     const key = "contestSystemV7";
-    const saved = JSON.parse(localStorage.getItem(key) || "null");
-    const state = saved || {
-      view: "dashboard",
-      rankMode: "personal",
-      activeModule: 0,
-      selected: 0,
-      currentQuestion: 0,
-      answers: {},
-      bank: expandedDefaultBank,
-      examPaper: [],
-      paperSeq: 0,
-      seq: 1,
-      feed: ["系统已加载人员与班组信息，班组成绩按个人平均分计算。"],
-      candidates: peopleSource.map((p, i) => ({
-        id: i + 1, name: p.name, group: p.group, online: true, camera: i % 7 !== 0,
-        submitted: false, score: 0, accuracy: 0, timeSec: 0, submittedAt: 1000 + i, moduleScores: {},
-        status: i % 11 === 0 ? "warn" : "ok"
-      }))
-    };
-    state.bank ||= expandedDefaultBank;
-    state.examPaper ||= [];
-    state.paperSeq ||= 0;
-    state.answers ||= {};
+
+let saved = null;
+try {
+  saved = JSON.parse(localStorage.getItem(key) || "null");
+} catch {
+  localStorage.removeItem(key);
+  saved = null;
+}
+
+const defaultState = {
+  view: "dashboard",
+  rankMode: "personal",
+  activeModule: 0,
+  selected: 0,
+  currentQuestion: 0,
+  answers: {},
+  bank: expandedDefaultBank,
+  examPaper: [],
+  paperSeq: 0,
+  seq: 1,
+  feed: ["系统已加载人员与班组信息，班组成绩按个人平均分计算。"],
+  candidates: peopleSource.map((p, i) => ({
+    id: i + 1,
+    name: p.name,
+    group: p.group,
+    online: true,
+    camera: i % 7 !== 0,
+    submitted: false,
+    score: 0,
+    accuracy: 0,
+    timeSec: 0,
+    submittedAt: 1000 + i,
+    moduleScores: {},
+    wrongQuestions: [],
+    status: i % 11 === 0 ? "warn" : "ok"
+  }))
+};
+
+const state = {
+  ...defaultState,
+  ...(saved && typeof saved === "object" ? saved : {})
+};
+
+if (!Number.isInteger(state.activeModule) || state.activeModule < 0 || state.activeModule >= modules.length) {
+  state.activeModule = 0;
+}
+
+if (!Number.isInteger(state.selected) || state.selected < 0) {
+  state.selected = 0;
+}
+
+if (!Array.isArray(state.candidates) || !state.candidates.length) {
+  state.candidates = defaultState.candidates;
+}
+
+if (state.selected >= state.candidates.length) {
+  state.selected = 0;
+}
+
+if (!Array.isArray(state.bank) || !state.bank.length) {
+  state.bank = expandedDefaultBank;
+}
+
+if (!Array.isArray(state.examPaper)) {
+  state.examPaper = [];
+}
+
+if (!state.answers || typeof state.answers !== "object") {
+  state.answers = {};
+}
+
+if (!Array.isArray(state.feed)) {
+  state.feed = defaultState.feed;
+}
+
+state.candidates = state.candidates.map((c, i) => ({
+  ...defaultState.candidates[i % defaultState.candidates.length],
+  ...c,
+  moduleScores: c.moduleScores || {},
+  wrongQuestions: c.wrongQuestions || []
+}));
     let examStart = null;
     let stream = null;
-    let moduleSeconds = modules[state.activeModule].minutes * 60;
+    let moduleSeconds = (modules[state.activeModule] || modules[0]).minutes * 60;
     const $ = id => document.getElementById(id);
     function save(){ localStorage.setItem(key, JSON.stringify(state)); }
     function time(s){ const m = Math.floor(Math.max(0,s)/60).toString().padStart(2,"0"); const x = Math.max(0,s%60).toString().padStart(2,"0"); return `${m}:${x}`; }
