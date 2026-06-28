@@ -157,24 +157,27 @@ async function syncQuestions() {
     console.warn("后端题库同步失败：", error.message);
   }
 }
-  function applyState(payload) {
-    if (!payload?.candidates) return;
-    app.state.candidates = payload.candidates.map(c => ({
-      ...c,
-      moduleScores: c.moduleScores || {}
-    }));
-    if (api.user?.candidateId) {
-      const index = app.state.candidates.findIndex(c => c.id === api.user.candidateId);
-      if (index >= 0) app.state.selected = index;
-      app.state.view = "exam";
-    }
-    if (payload.questionsCount) {
-      const metric = document.getElementById("metricBank");
-      if (metric) metric.textContent = payload.questionsCount;
-    }
-    app.render();
-    applyRoleAccess();
-  }
+  function showScoreModal(data) {
+  const modal = document.createElement("div");
+  modal.style = `
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+  `;
+
+  modal.innerHTML = `
+    <div style="width:80%;height:80%;background:#111;color:#fff;overflow:auto;padding:20px">
+      <h3>答题详情</h3>
+      <pre>${JSON.stringify(data, null, 2)}</pre>
+      <button onclick="this.closest('div').parentNode.remove()">关闭</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
 
   function applyRoleAccess() {
     if (!api.user) return;
@@ -468,4 +471,12 @@ async function backendResetNow() {
 
   app.toast("已重置所有考试数据，每名考生只能考试一次");
   await syncState();
+}
+
+<button onclick="toggleSidebar()">隐藏侧边栏</button>
+function toggleSidebar() {
+  document.querySelector(".sidebar").classList.toggle("hidden");
+}
+.sidebar.hidden {
+  display: none;
 }
