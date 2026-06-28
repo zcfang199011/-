@@ -316,7 +316,11 @@ function leaderboard() {
   return { personal, teams };
 }
 
-function statePayload() {
+function statePayload() {wrongStats: store.candidates.map(c => ({
+  id: c.id,
+  name: c.name,
+  wrongCount: (c.wrongQuestions || []).length
+}))
   return {
     modules,
     candidates: store.candidates.map(publicCandidate),
@@ -399,6 +403,28 @@ app.use(express.text({ type: ["text/csv", "text/plain"], limit: "5mb" }));
 app.use(express.static(ROOT));
 
 app.get("/health", (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
+
+app.get("/api/admin/wrong-analysis", auth(), (req, res) => {
+  const all = [];
+
+  for (const c of store.candidates) {
+    for (const w of (c.wrongQuestions || [])) {
+      all.push(w.title);
+    }
+  }
+
+  const freq = {};
+  for (const t of all) {
+    freq[t] = (freq[t] || 0) + 1;
+  }
+
+  const top = Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 20)
+    .map(([title, count]) => ({ title, count }));
+
+  res.json({ top });
+});
 
 app.post("/api/login", (req, res) => {checkScheduledReset();
   const { username, password } = req.body || {};
@@ -533,7 +559,20 @@ app.post("/api/exam/submit", auth(), (req, res) => {
   let earned = 0;
   let total = 0;
   const byModule = new Map();
-  questions.forEach((q, index) => {
+  questions.forEach((q, index) => {const userAns = String(exam.answers[index] || "").toUpperCase();
+const isWrong = userAns !== q.answer;
+
+if (!candidate.wrongQuestions) candidate.wrongQuestions = [];
+
+if (isWrong) {
+  candidate.wrongQuestions.push({
+    questionId: q.id,
+    module: q.module,
+    title: q.title,
+    correct: q.answer,
+    user: userAns || "未答"
+  });
+}
     const points = Number(q.score || 2);
     total += points;
     if (!byModule.has(q.module)) byModule.set(q.module, { earned: 0, total: 0 });
