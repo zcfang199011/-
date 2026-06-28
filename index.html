@@ -557,10 +557,13 @@
             </div>
             <div class="dashboard-bottom-area">
               <section class="panel">
-  <div class="panel-header">
-    <h3>错题统计</h3>
+<div class="panel-header">
+  <h3>错题统计</h3>
+  <div style="display:flex;gap:8px;align-items:center">
     <span>个人错题 / 高频错题</span>
+    <button id="exportWrongStatsBtn" type="button">导出错题统计</button>
   </div>
+</div>
   <div class="table-wrap">
     <div id="wrongStatsBox" class="hint">暂无错题统计数据</div>
   </div>
@@ -1060,6 +1063,50 @@ document.querySelectorAll("[data-team]").forEach(row => {
 
   document.body.appendChild(modal);
 }
+
+    function exportWrongStatsCsv() {
+  const rows = [
+    ["姓名", "班组", "模块", "题目", "A", "B", "C", "D", "本人答案", "正确答案"]
+  ];
+
+  (state.candidates || []).forEach(c => {
+    const wrongs = c.wrongQuestions || [];
+
+    if (!wrongs.length) {
+      rows.push([c.name, c.group, "", "无错题", "", "", "", "", "", ""]);
+      return;
+    }
+
+    wrongs.forEach(w => {
+      rows.push([
+        c.name,
+        c.group,
+        w.module || "",
+        w.title || "",
+        w.A || "",
+        w.B || "",
+        w.C || "",
+        w.D || "",
+        w.user || "未作答",
+        w.correct || ""
+      ]);
+    });
+  });
+
+  const csv = "\ufeff" + rows.map(row =>
+    row.map(value => {
+      const s = String(value ?? "");
+      return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    }).join(",")
+  ).join("\r\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `错题统计_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
     
     function renderWrongStats() {
   const box = document.getElementById("wrongStatsBox");
@@ -1154,6 +1201,7 @@ document.querySelectorAll("[data-team]").forEach(row => {
 
   box.querySelectorAll("[data-wrong-person]").forEach(row => {
     row.onclick = () => showWrongDetailModal(Number(row.dataset.wrongPerson));
+    document.getElementById("exportWrongStatsBtn")?.addEventListener("click", exportWrongStatsCsv);
   });
 }
     
