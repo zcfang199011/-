@@ -11,6 +11,7 @@ const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
 const DB_FILE = path.join(DATA_DIR, "store.json");
 const PEOPLE_FILE = process.env.PEOPLE_FILE || path.join(ROOT, "人员与班组信息.xlsx");
+const QUESTIONS_FILE = process.env.QUESTIONS_FILE || path.join(ROOT, "questions.json");
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "https://jade-tiramisu-f2c504.netlify.app,http://127.0.0.1:8765,http://localhost:8765")
   .split(",")
   .map(x => x.trim())
@@ -46,7 +47,32 @@ function fallbackPeople() {
     { id: 3, name: "刘威", group: "刘威班组" }
   ];
 }
+function readQuestionsFromFile() {
+  try {
+    if (!fs.existsSync(QUESTIONS_FILE)) return [];
 
+    const raw = fs.readFileSync(QUESTIONS_FILE, "utf8");
+    const data = JSON.parse(raw);
+
+    if (!Array.isArray(data)) return [];
+
+    return data.map((q, index) => ({
+      id: q.id || `q-${index + 1}`,
+      module: String(q.module || q["模块"] || "").trim(),
+      type: String(q.type || q["题型"] || "单选").trim(),
+      title: String(q.title || q["题干"] || "").trim(),
+      A: q.A || "",
+      B: q.B || "",
+      C: q.C || "",
+      D: q.D || "",
+      answer: String(q.answer || q["答案"] || "").trim().toUpperCase(),
+      score: Number(q.score || q["分值"] || 2)
+    })).filter(q => q.module && q.title);
+  } catch (error) {
+    console.warn("题库文件读取失败：", error.message);
+    return [];
+  }
+}
 function seedQuestions() {
   const base = {
     安全知识: [
@@ -122,7 +148,7 @@ function createStore() {
       }))
     ],
     candidates,
-    questions: [],
+    questions: readQuestionsFromFile(),
     exams: {},
     events: []
   };
