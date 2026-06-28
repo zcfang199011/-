@@ -235,6 +235,7 @@ function resetAllExamData(reason = "管理员重置考试数据") {
     c.timeSec = 0;
     c.submittedAt = 1000 + c.id;
     c.moduleScores = {};
+    c.wrongQuestions = [];
     c.status = "ok";
   }
 
