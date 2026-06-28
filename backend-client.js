@@ -50,10 +50,10 @@
   }
 
   function renderLogin() {
-    if (api.user) {
-      renderBadge();
-      return;
-    }
+  if (api.user && api.token) {
+    renderBadge();
+    return;
+  }
     const mask = document.createElement("div");
     mask.className = "login-mask";
     mask.innerHTML = `
@@ -418,11 +418,18 @@ async function backendResetNow() {
   });
 
   if (api.user && api.token) {
-    renderBadge();
-    applyRoleAccess();
-    connectSocket();
-    syncState().catch(() => renderLogin());
-  } else {
+  renderBadge();
+  applyRoleAccess();
+  connectSocket();
+  syncState().catch(() => {
+    sessionStorage.removeItem("contestToken");
+    sessionStorage.removeItem("contestUser");
+    api.token = "";
+    api.user = null;
+    document.querySelector(".login-badge")?.remove();
     renderLogin();
-  }
+  });
+} else {
+  renderLogin();
+}
 })();
