@@ -56,15 +56,23 @@
 .app.sidebar-collapsed .main{
   grid-column:1 / -1;
 }
-    .hero-title-row{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
+  .hero-title-row{
+  display:block;
 }
 
-.hero-title-row h1{
+.hero-title-main{
   margin:0;
+  font-size:42px;
+  line-height:1.18;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.title-last{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  white-space:nowrap;
 }
 
 .hero-logo{
@@ -72,17 +80,33 @@
   width:auto;
   object-fit:contain;
   flex-shrink:0;
+  transform:translateY(2px);
 }
 
 @media (max-width: 768px){
-  .hero-title-row{
+  .hero-title-main{
+    font-size:38px;
+    line-height:1.2;
+  }
+
+  .title-last{
     gap:8px;
   }
 
   .hero-logo{
-    height:32px;
+    height:34px;
   }
-  } 
+}
+
+@media (max-width: 420px){
+  .hero-title-main{
+    font-size:34px;
+  }
+
+  .hero-logo{
+    height:30px;
+  }
+}
     * { box-sizing: border-box; }
     /* 移动端/平板端：侧边栏改为抽屉，不再占顶部空间 */
 @media (max-width: 1320px){
@@ -586,12 +610,15 @@
         <div class="hero">
           <div class="air-stage" aria-label="飞机展示"><img src="assets/suparna-aircraft-hero.png" alt="金鹏航空飞机" /></div>
           <div class="title">
-            <div class="hero-title-row">
-           <h1>运行控制部2026年安全知识与业务技能比赛</h1>
-          <img class="hero-logo" src="assets/suparna-logo-transparent.png" alt="金鹏航空 LOGO" />
-           </div>
-            <span>人人讲安全、个个会应急——排查整治风险隐患</span>
-          </div>
+  <div class="hero-title-row">
+    <h1 class="hero-title-main">
+      运行控制部2026年安全知识与业务技能<span class="title-last">比赛
+        <img class="hero-logo" src="assets/suparna-logo-transparent.png" alt="金鹏航空 LOGO" />
+      </span>
+    </h1>
+  </div>
+  <span>人人讲安全、个个会应急——排查整治风险隐患</span>
+</div>
         </div>
         <section class="broadcast">
           <div><strong id="topLeader">--</strong><small>个人第1名</small></div>
