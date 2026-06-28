@@ -219,6 +219,55 @@ function syncPeopleToStore() {
 }
 
 syncPeopleToStore();
+store.settings = store.settings || {};
+store.settings.examResetAt = store.settings.examResetAt || null;
+store.settings.examResetDoneAt = store.settings.examResetDoneAt || null;
+store.settings.onceOnly = store.settings.onceOnly ?? true;
+
+function resetAllExamData(reason = "管理员重置考试数据") {
+  for (const c of store.candidates || []) {
+    c.online = false;
+    c.camera = false;
+    c.submitted = false;
+    c.score = 0;
+    c.accuracy = 0;
+    c.timeSec = 0;
+    c.submittedAt = 1000 + c.id;
+    c.moduleScores = {};
+    c.status = "ok";
+  }
+
+  store.exams = {};
+  store.nextSeq = 1;
+
+  store.events.push({
+    time: Date.now(),
+    type: "reset",
+    text: reason
+  });
+
+  saveStore();
+  emitState();
+}
+
+function checkScheduledReset() {
+  const resetAt = store.settings?.examResetAt;
+
+  if (!resetAt) return;
+
+  const resetTime = new Date(resetAt).getTime();
+
+  if (!Number.isFinite(resetTime)) return;
+
+  if (Date.now() >= resetTime && store.settings.examResetDoneAt !== resetAt) {
+    resetAllExamData(`系统按计划重置考试数据：${resetAt}`);
+    store.settings.examResetDoneAt = resetAt;
+    store.settings.onceOnly = true;
+    saveStore();
+  }
+}
+
+setInterval(checkScheduledReset, 30 * 1000);
 function publicCandidate(c) {
   return {
     id: c.id,
@@ -351,7 +400,7 @@ app.use(express.static(ROOT));
 
 app.get("/health", (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
-app.post("/api/login", (req, res) => {
+app.post("/api/login", (req, res) => {checkScheduledReset();
   const { username, password } = req.body || {};
   const user = store.users.find(u => u.username === username && u.password === password);
   if (!user) return res.status(401).json({ error: "账号或密码错误" });
@@ -378,7 +427,7 @@ app.post("/api/logout", auth(false), (req, res) => {
   res.json({ ok: true });
 });
 
-app.get("/api/state", auth(false), (req, res) => res.json(statePayload()));
+app.get("/api/state", auth(false), (req, res) =>{checkScheduledReset();res.json(statePayload())}) ;
 
 app.get("/api/questions", auth(), (req, res) => res.json({ questions: store.questions }));
 
@@ -414,11 +463,16 @@ app.get("/api/questions/export", auth(), (req, res) => {
   res.send(`\ufeff${csv}`);
 });
 
-app.post("/api/exam/draw", auth(), (req, res) => {
+app.post("/api/exam/draw", auth(), (req, res) => {checkScheduledReset();
   const user = req.user;
   const candidateId = user.role === "candidate" ? user.candidateId : Number(req.body?.candidateId || 0);
   const candidate = store.candidates.find(c => c.id === candidateId);
   if (!candidate) return res.status(400).json({ error: "未找到考生" });
+  if (store.settings?.onceOnly && candidate.submitted) {
+  return res.status(400).json({
+    error: "你已提交试卷，不能再次考试"
+  });
+}  
 const questions = drawQuestions();
 
 if (!questions.length) {
@@ -464,10 +518,16 @@ app.post("/api/exam/answer", auth(), (req, res) => {
 });
 
 app.post("/api/exam/submit", auth(), (req, res) => {
+  checkScheduledReset();
   const candidateId = req.user.role === "candidate" ? req.user.candidateId : Number(req.body?.candidateId || 0);
   const candidate = store.candidates.find(c => c.id === candidateId);
   const exam = store.exams[candidateId];
   if (!candidate || !exam) return res.status(400).json({ error: "未找到考试" });
+  if (store.settings?.onceOnly && candidate.submitted) {
+  return res.status(400).json({
+    error: "你已提交过试卷，不能重复提交"
+  });
+}
   if (req.body?.answers && typeof req.body.answers === "object") exam.answers = req.body.answers;
   const questions = exam.questionIds.map(id => store.questions.find(q => q.id === id)).filter(Boolean);
   let earned = 0;
