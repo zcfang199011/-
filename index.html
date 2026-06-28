@@ -281,6 +281,48 @@
     .mini-stat { padding: 10px; border-radius: var(--radius); background: #10161a; border: 1px solid rgba(255,255,255,.08); }
     .mini-stat span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
     .mini-stat strong { font-size: 20px; color: var(--text); font-variant-numeric: tabular-nums; }
+    .score-modal-mask{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:rgba(0,0,0,.62);
+  display:grid;
+  place-items:center;
+  padding:20px;
+}
+
+.score-modal{
+  width:min(920px,96vw);
+  max-height:86vh;
+  overflow:auto;
+  background:#12191f;
+  color:#f6fafc;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;
+  box-shadow:0 28px 90px rgba(0,0,0,.45);
+}
+
+.score-modal-header{
+  position:sticky;
+  top:0;
+  z-index:1;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  background:#12191f;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.score-modal-header h3{
+  margin:0;
+  font-size:18px;
+}
+
+.score-modal-body{
+  padding:16px;
+}
     .monitor-video { min-height: 190px; border-radius: var(--radius); overflow: hidden; border: 1px solid rgba(255,255,255,.1); background: #050708; display: grid; place-items: center; }
     .toast { position: fixed; right: 18px; bottom: 18px; z-index: 10; max-width: 360px; padding: 12px 14px; border-radius: var(--radius); background: #f6f8f9; color: #101417; box-shadow: 0 18px 50px rgba(0,0,0,.36); font-weight: 800; transform: translateY(120px); opacity: 0; transition: .22s ease; }
     .toast.show { transform: translateY(0); opacity: 1; }
@@ -824,6 +866,91 @@
         </article>`).join("");
       document.querySelectorAll("[data-module]").forEach(row => row.onclick = () => { state.activeModule = +row.dataset.module; state.currentQuestion = 0; moduleSeconds = modules[state.activeModule].minutes * 60; feed(`切换模块：${modules[state.activeModule].name}`); render(); });
     }
+
+    function showScoreModal(info) {
+  let title = "答题详情";
+  let body = "";
+
+  if (info.type === "person") {
+    const c = state.candidates.find(x => x.id === info.id);
+    if (!c) return;
+
+    title = `${c.name} · ${c.group} 答题情况`;
+
+    body = `
+      <div class="score-detail-grid">
+        <div class="mini-stat"><span>总分</span><strong>${c.score}</strong></div>
+        <div class="mini-stat"><span>正确率</span><strong>${c.accuracy}%</strong></div>
+        <div class="mini-stat"><span>用时</span><strong>${c.timeSec ? time(c.timeSec) : "--:--"}</strong></div>
+        <div class="mini-stat"><span>提交序</span><strong>${c.submittedAt || "--"}</strong></div>
+        ${modules.map(m => `
+          <div class="mini-stat">
+            <span>${m.name}</span>
+            <strong>${c.moduleScores?.[m.name] || 0}</strong>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  if (info.type === "modulePerson") {
+    const c = state.candidates.find(x => x.id === info.id);
+    if (!c) return;
+
+    title = `${c.name} · ${info.moduleName} 模块答题情况`;
+
+    body = `
+      <div class="score-detail-grid">
+        <div class="mini-stat"><span>模块</span><strong>${info.moduleName}</strong></div>
+        <div class="mini-stat"><span>模块得分</span><strong>${c.moduleScores?.[info.moduleName] || 0}</strong></div>
+        <div class="mini-stat"><span>总分</span><strong>${c.score}</strong></div>
+        <div class="mini-stat"><span>状态</span><strong>${c.submitted ? "已提交" : "未提交"}</strong></div>
+      </div>
+    `;
+  }
+
+  if (info.type === "team") {
+    const g = teamRows().find(x => x.name === info.name);
+    const members = state.candidates.filter(c => c.group === info.name).sort((a,b)=>b.score-a.score);
+    if (!g) return;
+
+    title = `${info.name} 班组答题情况`;
+
+    body = `
+      <div class="score-detail-grid">
+        <div class="mini-stat"><span>班组平均分</span><strong>${g.avg}</strong></div>
+        <div class="mini-stat"><span>已提交</span><strong>${g.submitted}/${g.members}</strong></div>
+        <div class="mini-stat"><span>平均正确率</span><strong>${g.avgAcc}%</strong></div>
+        <div class="mini-stat"><span>平均用时</span><strong>${g.avgTime ? time(g.avgTime) : "--:--"}</strong></div>
+      </div>
+      <div style="margin-top:12px;line-height:1.8">
+        ${members.map(c => `<div>${c.name}：${c.score}分，${c.submitted ? "已提交" : "未提交"}</div>`).join("")}
+      </div>
+    `;
+  }
+
+  const modal = document.createElement("div");
+  modal.className = "score-modal-mask";
+  modal.innerHTML = `
+    <div class="score-modal">
+      <div class="score-modal-header">
+        <h3>${title}</h3>
+        <button type="button" class="score-modal-close">关闭</button>
+      </div>
+      <div class="score-modal-body">
+        ${body}
+      </div>
+    </div>
+  `;
+
+  modal.querySelector(".score-modal-close").onclick = () => modal.remove();
+  modal.onclick = e => {
+    if (e.target === modal) modal.remove();
+  };
+
+  document.body.appendChild(modal);
+}
+    
     function renderRanks(){
       $("personalRankList").innerHTML = rankedPeople().slice(0,6).map((c,i)=>`
         <article class="rank-row" data-person="${c.id}"><span class="num">${i+1}</span><span class="rank-info"><strong>${c.name}</strong><small>${c.group} · 正确率 ${c.accuracy}% · 用时 ${c.timeSec ? time(c.timeSec) : "--:--"}</small></span><span class="rank-score">${c.score}</span></article>`).join("");
