@@ -556,6 +556,15 @@
             </div>
             <div class="dashboard-bottom-area">
               <section class="panel">
+  <div class="panel-header">
+    <h3>错题统计</h3>
+    <span>个人错题 / 高频错题</span>
+  </div>
+  <div class="table-wrap">
+    <div id="wrongStatsBox" class="hint">暂无错题统计数据</div>
+  </div>
+</section>
+              <section class="panel">
                 <div class="panel-header"><h3>比赛模块</h3><span>点击切换当前模块</span></div>
                 <div class="module-list" id="moduleList"></div>
               </section>
@@ -989,6 +998,86 @@ document.querySelectorAll("[data-team]").forEach(row => {
   });
 });
     }
+
+    function renderWrongStats() {
+  const box = document.getElementById("wrongStatsBox");
+  if (!box) return;
+
+  const candidates = state.candidates || [];
+
+  const personal = candidates.map(c => ({
+    name: c.name,
+    group: c.group,
+    wrongCount: (c.wrongQuestions || []).length,
+    wrongQuestions: c.wrongQuestions || []
+  })).sort((a, b) => b.wrongCount - a.wrongCount);
+
+  const freqMap = new Map();
+
+  personal.forEach(c => {
+    c.wrongQuestions.forEach(w => {
+      const key = w.title || w.questionId;
+      if (!key) return;
+
+      if (!freqMap.has(key)) {
+        freqMap.set(key, {
+          title: w.title || key,
+          module: w.module || "",
+          count: 0
+        });
+      }
+
+      freqMap.get(key).count += 1;
+    });
+  });
+
+  const highFreq = [...freqMap.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  box.innerHTML = `
+    <h4 style="margin:0 0 8px;color:var(--gold)">个人错题统计</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>班组</th>
+          <th>错题数</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${personal.map(c => `
+          <tr>
+            <td>${c.name}</td>
+            <td>${c.group}</td>
+            <td>${c.wrongCount}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+
+    <h4 style="margin:16px 0 8px;color:var(--gold)">高频错题 TOP10</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>模块</th>
+          <th>题目</th>
+          <th>错误次数</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${highFreq.map(w => `
+          <tr>
+            <td>${w.module}</td>
+            <td>${w.title}</td>
+            <td>${w.count}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+    
     function showPersonDetail(id, moduleName = null){
       const c = state.candidates.find(x => x.id === id);
       if (!c) return;
@@ -1093,7 +1182,7 @@ function renderQuestion(){
       $("peopleTable").innerHTML = state.candidates.map(c=>`<tr><td>${c.name}</td><td>${c.group}</td><td>${c.score}</td><td>${c.submitted ? "已提交" : "未提交"}</td></tr>`).join("");
     }
     function render(){
-      renderNav(); renderTop(); renderMetrics(); renderModules(); renderRanks(); renderSelectors(); renderQuestion(); renderMonitor(); renderBank(); renderPeople(); save();
+      renderNav(); renderTop(); renderMetrics(); renderModules(); renderRanks();renderWrongStats(); renderSelectors(); renderQuestion(); renderMonitor(); renderBank(); renderPeople(); save();
     }
     function scoreExam(){
       const qs = activeQuestions();
