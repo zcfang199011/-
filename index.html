@@ -1098,48 +1098,62 @@ document.querySelectorAll("[data-team]").forEach(row => {
     .slice(0, 10);
 
   box.innerHTML = `
-    <h4 style="margin:0 0 8px;color:var(--gold)">个人错题统计</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>姓名</th>
-          <th>班组</th>
-          <th>错题数</th>
-        </tr>
-      </thead>
-      <tbody>
-    ${personal.map(c => `
-  <tr data-wrong-person="${c.id}" style="cursor:pointer">
-    <td>${c.name}</td>
-    <td>${c.group}</td>
-    <td>${c.wrongCount}</td>
-  </tr>
-`).join("")}
-      </tbody>
-    </table>
-
-    <h4 style="margin:16px 0 8px;color:var(--gold)">高频错题 TOP10</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>模块</th>
-          <th>题目</th>
-          <th>错误次数</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${highFreq.map(w => `
+    <details open>
+      <summary style="cursor:pointer;font-weight:900;color:var(--gold);margin-bottom:8px">
+        个人错题统计
+      </summary>
+      <table>
+        <thead>
           <tr>
-            <td>${w.module}</td>
-            <td>${w.title}</td>
-            <td>${w.count}</td>
+            <th>姓名</th>
+            <th>班组</th>
+            <th>错题数</th>
           </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;box.querySelectorAll("[data-wrong-person]").forEach(row => {
-  row.onclick = () => showWrongDetailModal(Number(row.dataset.wrongPerson));
-});
+        </thead>
+        <tbody>
+          ${personal.map(c => `
+            <tr data-wrong-person="${c.id}" style="cursor:pointer">
+              <td>${c.name}</td>
+              <td>${c.group}</td>
+              <td>${c.wrongCount}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </details>
+
+    <details style="margin-top:14px">
+      <summary style="cursor:pointer;font-weight:900;color:var(--gold);margin-bottom:8px">
+        高频错题 TOP10
+      </summary>
+      <table>
+        <thead>
+          <tr>
+            <th>模块</th>
+            <th>题目</th>
+            <th>错误次数</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${highFreq.length ? highFreq.map(w => `
+            <tr>
+              <td>${w.module}</td>
+              <td>${w.title}</td>
+              <td>${w.count}</td>
+            </tr>
+          `).join("") : `
+            <tr>
+              <td colspan="3">暂无高频错题数据</td>
+            </tr>
+          `}
+        </tbody>
+      </table>
+    </details>
+  `;
+
+  box.querySelectorAll("[data-wrong-person]").forEach(row => {
+    row.onclick = () => showWrongDetailModal(Number(row.dataset.wrongPerson));
+  });
 }
     
     function showPersonDetail(id, moduleName = null){
