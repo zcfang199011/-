@@ -157,28 +157,6 @@ async function syncQuestions() {
     console.warn("后端题库同步失败：", error.message);
   }
 }
-  function showScoreModal(data) {
-  const modal = document.createElement("div");
-  modal.style = `
-    position:fixed;inset:0;
-    background:rgba(0,0,0,.6);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
-  `;
-
-  modal.innerHTML = `
-    <div style="width:80%;height:80%;background:#111;color:#fff;overflow:auto;padding:20px">
-      <h3>答题详情</h3>
-      <pre>${JSON.stringify(data, null, 2)}</pre>
-      <button onclick="this.closest('div').parentNode.remove()">关闭</button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
   function applyRoleAccess() {
     if (!api.user) return;
     const isCandidate = api.user.role === "candidate";
