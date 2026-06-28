@@ -281,7 +281,7 @@ function publicCandidate(c) {
     timeSec: c.timeSec,
     submittedAt: c.submittedAt,
     moduleScores: c.moduleScores,
-    status: c.status，wrongQuestions: c.wrongQuestions || []
+    status: c.status,wrongQuestions: c.wrongQuestions || []
   };
 }
 
