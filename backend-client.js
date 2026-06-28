@@ -450,11 +450,4 @@ async function backendResetNow() {
   app.toast("已重置所有考试数据，每名考生只能考试一次");
   await syncState();
 }
-
-<button onclick="toggleSidebar()">隐藏侧边栏</button>
-function toggleSidebar() {
-  document.querySelector(".sidebar").classList.toggle("hidden");
-}
-.sidebar.hidden {
-  display: none;
 }
