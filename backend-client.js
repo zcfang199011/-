@@ -1,13 +1,30 @@
-(function () {
+(function bootBackend(retry = 0) {
   const app = window.contestApp;
-  if (!app) return;
+
+  if (!app) {
+    if (retry < 100) {
+      setTimeout(() => bootBackend(retry + 1), 100);
+    } else {
+      console.error("contestApp 未初始化，backend-client.js 未启动。请检查 index.html 主脚本是否报错。");
+    }
+    return;
+  }
 
   const API_BASE = (window.CONTEST_API_BASE || "").replace(/\/$/, "");
-  const api = {
-    token: sessionStorage.getItem("contestToken") || "",
-    user: JSON.parse(sessionStorage.getItem("contestUser") || "null"),
-    socket: null
-  };
+  let storedUser = null;
+
+try {
+  storedUser = JSON.parse(sessionStorage.getItem("contestUser") || "null");
+} catch {
+  sessionStorage.removeItem("contestUser");
+  sessionStorage.removeItem("contestToken");
+}
+
+const api = {
+  token: sessionStorage.getItem("contestToken") || "",
+  user: storedUser,
+  socket: null
+};
 
   const style = document.createElement("style");
   style.textContent = `
