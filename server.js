@@ -195,7 +195,8 @@ function syncPeopleToStore() {
       timeSec: old.timeSec || 0,
       submittedAt: old.submittedAt || 1000 + index,
       moduleScores: old.moduleScores || {},
-      status: old.status || "ok"
+      status: old.status || "ok",
+      wrongQuestions: old.wrongQuestions || []
     };
   });
 
@@ -281,7 +282,8 @@ function publicCandidate(c) {
     timeSec: c.timeSec,
     submittedAt: c.submittedAt,
     moduleScores: c.moduleScores,
-    status: c.status,wrongQuestions: c.wrongQuestions || []
+    status: c.status,
+    wrongQuestions: c.wrongQuestions || []
   };
 }
 
@@ -316,16 +318,17 @@ function leaderboard() {
   return { personal, teams };
 }
 
-function statePayload() {wrongStats: store.candidates.map(c => ({
-  id: c.id,
-  name: c.name,
-  wrongCount: (c.wrongQuestions || []).length
-}))
+function statePayload() {
   return {
     modules,
     candidates: store.candidates.map(publicCandidate),
     questionsCount: store.questions.length,
     leaderboard: leaderboard(),
+    wrongStats: store.candidates.map(c => ({
+      id: c.id,
+      name: c.name,
+      wrongCount: (c.wrongQuestions || []).length
+    })),
     events: store.events.slice(-30).reverse()
   };
 }
