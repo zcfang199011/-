@@ -1182,8 +1182,19 @@ function renderQuestion(){
       $("peopleTable").innerHTML = state.candidates.map(c=>`<tr><td>${c.name}</td><td>${c.group}</td><td>${c.score}</td><td>${c.submitted ? "已提交" : "未提交"}</td></tr>`).join("");
     }
     function render(){
-      renderNav(); renderTop(); renderMetrics(); renderModules(); renderRanks();renderWrongStats(); renderSelectors(); renderQuestion(); renderMonitor(); renderBank(); renderPeople(); save();
-    }
+  renderNav();
+  renderTop();
+  renderMetrics();
+  renderModules();
+  renderRanks();
+  renderWrongStats();
+  renderSelectors();
+  renderQuestion();
+  renderMonitor();
+  renderBank();
+  renderPeople();
+  save();
+}
     function scoreExam(){
       const qs = activeQuestions();
       const c = state.candidates[state.selected];
