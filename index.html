@@ -613,6 +613,26 @@
         <section class="view" id="settingsView">
           <div class="settings-grid">
             <section class="panel">
+            <section class="panel">
+  <div class="panel-header">
+    <h3>考试数据重置</h3>
+    <span>管理员操作</span>
+  </div>
+
+  <div class="settings-body">
+    <label>
+      考试数据重置时间
+      <input type="datetime-local" id="resetAtInput">
+    </label>
+
+    <button class="gold" id="scheduleResetBtn">设置定时重置</button>
+    <button class="primary" id="resetNowBtn">立即重置所有考试数据</button>
+
+    <div class="hint">
+      重置后将清空所有人成绩、答题记录和考试记录，并限制每名考生只能考试一次。
+    </div>
+  </div>
+</section>
               <div class="panel-header"><h3>人员与班组</h3><span>班组成绩=班组个人平均分</span></div>
               <div class="table-wrap">
                 <table>
