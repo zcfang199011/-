@@ -11,7 +11,7 @@
 
   const style = document.createElement("style");
   style.textContent = `
-    .login-mask{position:fixed;inset:0;z-index:99;background:rgba(4,7,10,.76);backdrop-filter:blur(16px);display:grid;place-items:center;padding:20px}
+    .login-mask{position:fixed;inset:0;z-index:999999;background:rgba(4,7,10,.76);backdrop-filter:blur(16px);display:grid;place-items:center;padding:20px}
     .login-card{width:min(440px,100%);background:linear-gradient(180deg,rgba(22,30,36,.98),rgba(12,18,22,.98));border:1px solid rgba(255,255,255,.12);border-radius:8px;box-shadow:0 28px 80px rgba(0,0,0,.42);padding:24px;color:#f6fafc}
     .login-card h2{margin:0 0 8px;font-size:24px}
     .login-card p{margin:0 0 18px;color:#9fb0ba;line-height:1.55}
@@ -453,16 +453,14 @@ function clearLoginState() {
 }
 
 if (api.user && api.token) {
-  syncState()
-    .then(() => {
-      renderBadge();
-      applyRoleAccess();
-      connectSocket();
-    })
-    .catch(() => {
-      clearLoginState();
-      renderLogin();
-    });
+  renderBadge();
+  applyRoleAccess();
+  connectSocket();
+
+  syncState().catch(() => {
+    clearLoginState();
+    renderLogin();
+  });
 } else {
   clearLoginState();
   renderLogin();
