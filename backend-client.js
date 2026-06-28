@@ -50,58 +50,91 @@
   }
 
   function renderLogin() {
+  document.querySelector(".login-mask")?.remove();
+
   if (api.user && api.token) {
     renderBadge();
     return;
   }
-    const mask = document.createElement("div");
-    mask.className = "login-mask";
-    mask.innerHTML = `
-      <form class="login-card" id="backendLoginForm">
-        <h2>比赛系统登录</h2>
-        <p>请使用活动组织方发放的账号登录。考生账号通常为本人姓名，密码以现场通知为准。</p>
-        <label>账号<input id="backendUsername" autocomplete="username" placeholder="请输入账号或姓名"></label>
-        <label>密码<input id="backendPassword" type="password" autocomplete="current-password" placeholder="请输入密码"></label>
-        <div class="login-error" id="backendLoginError"></div>
-        <div class="login-row">
-          <button type="button" id="offlineMode">继续单机演示</button>
-          <button class="primary" type="submit">登录比赛系统</button>
-        </div>
-      </form>`;
-    document.body.appendChild(mask);
-    document.getElementById("offlineMode").onclick = () => mask.remove();
-    document.getElementById("backendLoginForm").onsubmit = async event => {
-      event.preventDefault();
-      const username = document.getElementById("backendUsername").value.trim();
-      const password = document.getElementById("backendPassword").value;
-      try {
-        const data = await request("/api/login", { method: "POST", body: JSON.stringify({ username, password }) });
-        api.token = data.token;
-        api.user = data.user;
-        sessionStorage.setItem("contestToken", api.token);
-        sessionStorage.setItem("contestUser", JSON.stringify(api.user));
-        mask.remove();
-        renderBadge();
-        applyRoleAccess();
-        connectSocket();
-        await syncState();
-        app.toast(`登录成功：${api.user.name}`);
-      } catch (error) {
-        document.getElementById("backendLoginError").textContent = error.message;
-      }
-    };
+
+  const mask = document.createElement("div");
+  mask.className = "login-mask";
+  mask.innerHTML = `
+    <form class="login-card" id="backendLoginForm">
+      <h2>比赛系统登录</h2>
+      <p>请使用活动组织方发放的账号登录。考生账号通常为本人姓名，密码以现场通知为准。</p>
+
+      <label>
+        账号
+        <input id="backendUsername" autocomplete="username" placeholder="请输入账号或姓名">
+      </label>
+
+      <label>
+        密码
+        <input id="backendPassword" type="password" autocomplete="current-password" placeholder="请输入密码">
+      </label>
+
+      <div class="login-error" id="backendLoginError"></div>
+
+      <div class="login-row">
+        <button type="button" id="offlineMode">继续单机演示</button>
+        <button class="primary" type="submit">登录比赛系统</button>
+      </div>
+    </form>
+  `;
+
+  document.body.appendChild(mask);
+
+  document.getElementById("offlineMode").onclick = () => mask.remove();
+
+  document.getElementById("backendLoginForm").onsubmit = async event => {
+    event.preventDefault();
+
+    const username = document.getElementById("backendUsername").value.trim();
+    const password = document.getElementById("backendPassword").value;
+
+    try {
+      const data = await request("/api/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password })
+      });
+
+      api.token = data.token;
+      api.user = data.user;
+
+      sessionStorage.setItem("contestToken", api.token);
+      sessionStorage.setItem("contestUser", JSON.stringify(api.user));
+
+      mask.remove();
+      renderBadge();
+      applyRoleAccess();
+      connectSocket();
+      await syncState();
+
+      app.toast(`登录成功：${api.user.name}`);
+    } catch (error) {
+      document.getElementById("backendLoginError").textContent = error.message;
+    }
+  };
+}
+
+function renderBadge() {
+  let badge = document.querySelector(".login-badge");
+
+  if (!badge) {
+    badge = document.createElement("div");
+    badge.className = "login-badge";
+    document.body.appendChild(badge);
   }
 
-  function renderBadge() {
-    let badge = document.querySelector(".login-badge");
-    if (!badge) {
-      badge = document.createElement("div");
-      badge.className = "login-badge";
-      document.body.appendChild(badge);
-    }
-    badge.innerHTML = `<strong>${api.user.name}</strong><span>${roleName(api.user.role)}</span><button id="backendLogout">退出</button>`;
-    document.getElementById("backendLogout").onclick = logout;
-  }
+  badge.innerHTML = `
+    <strong>${api.user.name}</strong>
+    <span>${roleName(api.user.role)}</span>
+    <button id="backendLogout" type="button">退出</button>
+  `;
+
+  document.getElementById("backendLogout").onclick = logout;
+}
 
   function roleName(role) {
     return role === "admin" ? "管理员" : role === "monitor" ? "监考员" : "考生";
