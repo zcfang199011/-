@@ -1437,13 +1437,21 @@ function renderQuestion(){
     $("exportBank").onclick = exportBank;
     $("uploadBank").onclick = uploadBank;
     setInterval(()=>{ moduleSeconds = Math.max(0, moduleSeconds - 1); renderMetrics(); }, 1000);
-    window.contestApp = { state, modules, render, renderMetrics, renderRanks, renderQuestion, feed, toast, activeQuestions, answerKey, stopCamera, startCamera };
-   window.contestApp = {
+    window.contestApp = {
   state,
+  modules,
   render,
+  renderMetrics,
+  renderRanks,
+  renderQuestion,
+  renderFeed,
+  renderWrongStats,
+  feed,
   toast,
+  activeQuestions,
+  answerKey,
   stopCamera,
-  answerKey
+  startCamera
 };
   document.getElementById("sidebarToggle")?.addEventListener("click", () => {
   document.querySelector(".app")?.classList.toggle("sidebar-collapsed");
