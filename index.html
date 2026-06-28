@@ -60,32 +60,37 @@
   display:block;
 }
 
-.hero-title-main{
+.title .hero-title-main{
   margin:0;
-  font-size:22px;
-  line-height:1.18;
+  font-size:clamp(22px, 5.5vw, 30px);
+  line-height:1.22;
   font-weight:900;
-  letter-spacing:-1px;
+  letter-spacing:-0.3px;
+  color:var(--text);
 }
 
-.title-last{
+.title .title-last{
   display:inline-flex;
   align-items:center;
-  gap:10px;
+  gap:7px;
   white-space:nowrap;
+  font-size:inherit;
+  line-height:inherit;
+  font-weight:inherit;
+  color:inherit;
 }
 
-.hero-logo{
-  height:42px;
+.title .hero-logo{
+  height:0.72em;
   width:auto;
   object-fit:contain;
   flex-shrink:0;
-  transform:translateY(2px);
+  transform:translateY(0.08em);
 }
 
 @media (max-width: 768px){
   .hero-title-main{
-    font-size:38px;
+    font-size:26px;
     line-height:1.2;
   }
 
