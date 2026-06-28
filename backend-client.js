@@ -281,7 +281,54 @@ async function backendUploadBank() {
   await syncQuestions();
   await syncState();
 }
+async function backendScheduleReset() {
+  requireLogin();
 
+  if (!api.user || api.user.role !== "admin") {
+    app.toast("只有管理员可以设置重置时间");
+    return;
+  }
+
+  const input = document.getElementById("resetAtInput");
+  const value = input?.value;
+
+  if (!value) {
+    app.toast("请选择重置时间");
+    return;
+  }
+
+  const resetAt = new Date(value).toISOString();
+
+  const data = await request("/api/admin/reset-schedule", {
+    method: "POST",
+    body: JSON.stringify({ resetAt })
+  });
+
+  app.toast(`已设置重置时间：${new Date(data.resetAt).toLocaleString()}`);
+  await syncState();
+}
+
+async function backendResetNow() {
+  requireLogin();
+
+  if (!api.user || api.user.role !== "admin") {
+    app.toast("只有管理员可以立即重置");
+    return;
+  }
+
+  if (!confirm("确定要立即清空所有人成绩、答题记录和考试记录吗？")) {
+    return;
+  }
+
+  await request("/api/admin/reset-now", {
+    method: "POST",
+    body: JSON.stringify({})
+  });
+
+  app.toast("已重置所有考试数据，每名考生只能考试一次");
+  await syncState();
+}
+  
   function parseCsv(text) {
     const rows = [];
     let row = [], cell = "", quoted = false;
@@ -325,19 +372,24 @@ async function backendUploadBank() {
   }
 
   document.addEventListener("click", event => {
-    const id = event.target?.id;
-    const backendActions = {
-      startExam: backendDrawExam,
-      submitExam: backendSubmitExam,
-      exportBank: backendExportBank,
-      uploadBank: backendUploadBank
-    };
-    if (!backendActions[id]) return;
-    if (!api.token) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    backendActions[id]().catch(error => app.toast(error.message));
-  }, true);
+  const id = event.target?.id;
+  const backendActions = {
+    startExam: backendDrawExam,
+    submitExam: backendSubmitExam,
+    exportBank: backendExportBank,
+    uploadBank: backendUploadBank,
+    scheduleResetBtn: backendScheduleReset,
+    resetNowBtn: backendResetNow
+  };
+
+  if (!backendActions[id]) return;
+  if (!api.token) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  backendActions[id]().catch(error => app.toast(error.message));
+}, true);
 
   document.addEventListener("change", event => {
     if (!api.token || event.target?.name !== "answer") return;
@@ -370,3 +422,50 @@ async function backendUploadBank() {
     renderLogin();
   }
 })();
+async function backendScheduleReset() {
+  requireLogin();
+
+  if (!api.user || api.user.role !== "admin") {
+    app.toast("只有管理员可以设置重置时间");
+    return;
+  }
+
+  const input = document.getElementById("resetAtInput");
+  const value = input?.value;
+
+  if (!value) {
+    app.toast("请选择重置时间");
+    return;
+  }
+
+  const resetAt = new Date(value).toISOString();
+
+  const data = await request("/api/admin/reset-schedule", {
+    method: "POST",
+    body: JSON.stringify({ resetAt })
+  });
+
+  app.toast(`已设置重置时间：${new Date(data.resetAt).toLocaleString()}`);
+  await syncState();
+}
+
+async function backendResetNow() {
+  requireLogin();
+
+  if (!api.user || api.user.role !== "admin") {
+    app.toast("只有管理员可以立即重置");
+    return;
+  }
+
+  if (!confirm("确定要立即清空所有人成绩、答题记录和考试记录吗？")) {
+    return;
+  }
+
+  await request("/api/admin/reset-now", {
+    method: "POST",
+    body: JSON.stringify({})
+  });
+
+  app.toast("已重置所有考试数据，每名考生只能考试一次");
+  await syncState();
+}
