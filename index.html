@@ -82,8 +82,56 @@
   .hero-logo{
     height:32px;
   }
-
+  } 
     * { box-sizing: border-box; }
+    /* 移动端/平板端：侧边栏改为抽屉，不再占顶部空间 */
+@media (max-width: 1320px){
+  .app{
+    display:block !important;
+  }
+
+  .main{
+    width:100% !important;
+  }
+
+  .sidebar{
+    position:fixed !important;
+    left:0;
+    top:0;
+    bottom:0;
+    width:min(320px,82vw);
+    min-height:100vh !important;
+    z-index:999999;
+    display:grid !important;
+    grid-template-rows:auto 1fr auto;
+    transform:translateX(-105%);
+    transition:transform .22s ease;
+    overflow:auto;
+    box-shadow:24px 0 60px rgba(0,0,0,.38);
+  }
+
+  .app:not(.sidebar-collapsed) .sidebar{
+    transform:translateX(0);
+  }
+
+  .app.sidebar-collapsed .sidebar{
+    display:grid !important;
+    transform:translateX(-105%);
+  }
+
+  .nav{
+    grid-template-columns:1fr !important;
+  }
+
+  .brand{
+    display:none !important;
+  }
+
+  .side-status{
+    display:none !important;
+  }
+}
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -519,8 +567,6 @@
   <button id="sidebarToggle" class="sidebar-toggle" type="button">☰</button>
   <div class="app">
     <aside class="sidebar">
-      <section class="brand">
-      </section>
       <nav class="nav">
         <button class="active" data-view="dashboard"><i>榜</i>大屏看板</button>
         <button data-view="exam"><i>考</i>在线考试</button>
@@ -542,7 +588,7 @@
           <div class="title">
             <div class="hero-title-row">
            <h1>运行控制部2026年安全知识与业务技能比赛</h1>
-           <img class="hero-logo"src="assets/suparna-logo-transparent.png" alt="金鹏航空 LOGO" />
+          <img class="hero-logo" src="assets/suparna-logo-transparent.png" alt="金鹏航空 LOGO" />
            </div>
             <span>人人讲安全、个个会应急——排查整治风险隐患</span>
           </div>
@@ -1566,8 +1612,15 @@ function renderQuestion(){
   stopCamera,
   startCamera
 };
-  document.getElementById("sidebarToggle")?.addEventListener("click", () => {
-  document.querySelector(".app")?.classList.toggle("sidebar-collapsed");
+  const appShell = document.querySelector(".app");
+const sidebarToggle = document.getElementById("sidebarToggle");
+
+if (window.matchMedia("(max-width: 1320px)").matches) {
+  appShell?.classList.add("sidebar-collapsed");
+}
+
+sidebarToggle?.addEventListener("click", () => {
+  appShell?.classList.toggle("sidebar-collapsed");
 });
     render();
   </script>
