@@ -433,5 +433,3 @@ async function backendResetNow() {
   renderLogin();
 }
 })();
-}
-})();
