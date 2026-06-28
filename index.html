@@ -56,7 +56,33 @@
 .app.sidebar-collapsed .main{
   grid-column:1 / -1;
 }
-    
+    .hero-title-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.hero-title-row h1{
+  margin:0;
+}
+
+.hero-logo{
+  height:42px;
+  width:auto;
+  object-fit:contain;
+  flex-shrink:0;
+}
+
+@media (max-width: 768px){
+  .hero-title-row{
+    gap:8px;
+  }
+
+  .hero-logo{
+    height:32px;
+  }
+
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -494,13 +520,6 @@
   <div class="app">
     <aside class="sidebar">
       <section class="brand">
-        <div class="brand-logo">
-          <img src="assets/suparna-logo-transparent.png" alt="金鹏航空 LOGO" />
-          <div>
-            <h1>运行控制部2026年安全知识与业务技能比赛</h1>
-            <small>Online Contest System</small>
-          </div>
-        </div>
       </section>
       <nav class="nav">
         <button class="active" data-view="dashboard"><i>榜</i>大屏看板</button>
@@ -521,7 +540,10 @@
         <div class="hero">
           <div class="air-stage" aria-label="飞机展示"><img src="assets/suparna-aircraft-hero.png" alt="金鹏航空飞机" /></div>
           <div class="title">
-            <h2>运行控制部2026年安全知识与业务技能比赛</h2>
+            <div class="hero-title-row">
+           <h1>运行控制部2026年安全知识与业务技能比赛</h1>
+           <img class="hero-logo"src="assets/suparna-logo-transparent.png" alt="金鹏航空 LOGO" />
+           </div>
             <span>人人讲安全、个个会应急——排查整治风险隐患</span>
           </div>
         </div>
