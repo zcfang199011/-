@@ -595,6 +595,10 @@ if (isWrong) {
     questionId: q.id,
     module: q.module,
     title: q.title,
+     A: q.A || "",
+     B: q.B || "",
+     C: q.C || "",
+     D: q.D || "",
     correct: q.answer,
     user: userAns || "未答"
   });
