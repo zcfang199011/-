@@ -1335,7 +1335,10 @@ document.querySelectorAll("[data-team]").forEach(row => {
   box.querySelectorAll("[data-wrong-person]").forEach(row => {
   row.onclick = () => showWrongDetailModal(Number(row.dataset.wrongPerson));
 });
-document.getElementById("exportWrongStatsBtn")?.onclick = exportWrongStatsCsv;
+const exportWrongStatsBtn = document.getElementById("exportWrongStatsBtn");
+if (exportWrongStatsBtn) {
+  exportWrongStatsBtn.onclick = exportWrongStatsCsv;
+}
 }
     
     function showPersonDetail(id, moduleName = null){
