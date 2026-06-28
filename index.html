@@ -2,52 +2,6 @@
 <html lang="zh-CN">
 <head>
   <script>
-(function () {
-  function showDebug(message) {
-    let box = document.getElementById("mobileDebugBox");
-    if (!box) {
-      box = document.createElement("pre");
-      box.id = "mobileDebugBox";
-      box.style.cssText = `
-        position:fixed;
-        left:8px;
-        right:8px;
-        top:8px;
-        z-index:99999999;
-        max-height:45vh;
-        overflow:auto;
-        background:#300;
-        color:#fff;
-        font-size:12px;
-        line-height:1.45;
-        padding:10px;
-        border:2px solid #f55;
-        border-radius:8px;
-        white-space:pre-wrap;
-      `;
-      document.addEventListener("DOMContentLoaded", () => document.body.appendChild(box));
-      if (document.body) document.body.appendChild(box);
-    }
-    box.textContent += message + "\n\n";
-  }
-
-  window.addEventListener("error", function (event) {
-    showDebug(
-      "JS错误：\n" +
-      event.message + "\n" +
-      "文件：" + event.filename + "\n" +
-      "行：" + event.lineno + " 列：" + event.colno
-    );
-  });
-
-  window.addEventListener("unhandledrejection", function (event) {
-    showDebug("Promise错误：\n" + (event.reason && (event.reason.stack || event.reason.message) || event.reason));
-  });
-
-  window.__mobileDebug = showDebug;
-})();
-</script>
-  <script>
     window.CONTEST_API_BASE = "https://dispatcher-api-3h4p.onrender.com";
   </script>
   <meta charset="utf-8" />
@@ -1605,16 +1559,5 @@ function renderQuestion(){
     }, 500);
   });
   </script>
-  <script>
-setTimeout(function () {
-  window.__mobileDebug?.(
-    "状态检测：\n" +
-    "contestApp = " + (window.contestApp ? "存在" : "不存在") + "\n" +
-    "loginMask = " + (document.querySelector(".login-mask") ? "存在" : "不存在") + "\n" +
-    "loginBadge = " + (document.querySelector(".login-badge") ? "存在" : "不存在") + "\n" +
-    "backendLogin = " + (window.backendLogin ? "存在" : "不存在")
-  );
-}, 1500);
-</script>
 </body>
 </html>
