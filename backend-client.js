@@ -19,7 +19,7 @@
     .login-card input{min-height:42px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:#0d1418;color:#f6fafc;padding:0 12px;font:inherit}
     .login-row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:16px}
     .login-error{min-height:20px;color:#ffb7bc;font-size:13px}
-    .login-badge{position:fixed;right:18px;bottom:18px;z-index:12;display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(13,20,24,.82);color:#dce6ea;box-shadow:0 12px 34px rgba(0,0,0,.22)}
+    .login-badge{position:fixed;left:18px;right:auto;bottom:18px;z-index:4;display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(13,20,24,.82);color:#dce6ea;box-shadow:0 12px 34px rgba(0,0,0,.22)}
     .login-badge button{min-height:30px;padding:0 10px}
   `;
   document.head.appendChild(style);
