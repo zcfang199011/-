@@ -27,6 +27,35 @@
       --radius: 8px;
       font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
     }
+
+    .sidebar-toggle{
+  position:fixed;
+  left:12px;
+  top:12px;
+  z-index:10000;
+  width:42px;
+  height:42px;
+  min-height:42px;
+  padding:0;
+  border-radius:8px;
+  background:rgba(13,20,24,.88);
+  color:#f6fafc;
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 12px 34px rgba(0,0,0,.28);
+}
+
+.app.sidebar-collapsed{
+  grid-template-columns:1fr;
+}
+
+.app.sidebar-collapsed .sidebar{
+  display:none;
+}
+
+.app.sidebar-collapsed .main{
+  grid-column:1 / -1;
+}
+    
     * { box-sizing: border-box; }
     body {
       margin: 0;
