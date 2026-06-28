@@ -600,3 +600,21 @@ server.listen(PORT, "0.0.0.0", () => {
   console.log(`运行控制部比赛系统已启动：http://127.0.0.1:${PORT}/index.html`);
   console.log("默认账号：admin/admin2026，monitor/monitor2026，考生姓名/123456");
 });
+
+app.post("/api/admin/reset-now", auth(), (req, res) => {
+  store.exams = {};
+  store.candidates.forEach(c => {
+    c.submitted = false;
+    c.score = 0;
+  });
+  saveStore();
+  emitState();
+  res.json({ ok: true });
+});
+
+app.post("/api/admin/reset-schedule", auth(), (req, res) => {
+  store.settings = store.settings || {};
+  store.settings.resetAt = req.body.resetAt;
+  saveStore();
+  res.json({ ok: true, resetAt: store.settings.resetAt });
+});
