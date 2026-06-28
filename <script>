@@ -657,9 +657,9 @@
   </div>
   <div class="toast" id="toast"></div>
   
-  <script>
+ <script>
   window.CONTEST_API_BASE = "https://dispatcher-api-3h4p.onrender.com";
-  
+ </script>
   <script>
     const peopleSource = [
       {"name":"田克刚","group":"张陆彬班组"},{"name":"孙宏方","group":"孙宏方班组"},{"name":"方博","group":"张陆彬班组"},{"name":"朱敖源","group":"孙宏方班组"},{"name":"华斌","group":"孙宏方班组"},{"name":"江瀚","group":"孙宏方班组"},{"name":"陈曦","group":"孙宏方班组"},{"name":"梁状","group":"孙宏方班组"},{"name":"王翔","group":"孙宏方班组"},{"name":"卢丰聪","group":"孙宏方班组"},{"name":"方泽晨","group":"孙宏方班组"},{"name":"朱小舟","group":"孙宏方班组"},{"name":"叶家辉","group":"孙宏方班组"},{"name":"韩海霖","group":"刘威班组"},{"name":"林萌","group":"刘威班组"},{"name":"高克春","group":"刘威班组"},{"name":"赵佳兴","group":"刘威班组"},{"name":"覃亚飞","group":"刘威班组"},{"name":"杨亮","group":"刘威班组"},{"name":"张娟","group":"孙宏方班组"},{"name":"黄耀飞","group":"刘威班组"},{"name":"刘威","group":"刘威班组"},{"name":"张莹","group":"刘威班组"},{"name":"史小楠","group":"张陆彬班组"},{"name":"苏小博","group":"刘威班组"},{"name":"鲁泽智","group":"刘威班组"},{"name":"武学超","group":"张陆彬班组"},{"name":"陈林漳","group":"张陆彬班组"},{"name":"李慧君","group":"张陆彬班组"},{"name":"钱常亮","group":"张陆彬班组"},{"name":"杜丰广","group":"张陆彬班组"},{"name":"彭小蓉","group":"刘威班组"},{"name":"许诚","group":"张陆彬班组"},{"name":"徐胜峰","group":"张陆彬班组"},{"name":"张陆彬","group":"张陆彬班组"},{"name":"汪理想","group":"张陆彬班组"},{"name":"梅浩东","group":"张陆彬班组"},{"name":"薛媛","group":"张陆彬班组"},{"name":"徐仕军","group":"孙宏方班组"},{"name":"李龙飞","group":"张陆彬班组"},{"name":"顾鹤轩","group":"孙宏方班组"},{"name":"张赫","group":"刘威班组"}
