@@ -469,6 +469,12 @@ function clearLoginState() {
   document.querySelector(".login-badge")?.remove();
 }
 
+window.backendLogin = {
+  renderLogin,
+  renderBadge,
+  clearLoginState
+};
+
 if (api.user && api.token) {
   renderBadge();
   applyRoleAccess();
