@@ -537,13 +537,35 @@ app.get("/api/exam/current", auth(), (req, res) => {
 
 app.post("/api/exam/answer", auth(), (req, res) => {
   const candidateId = req.user.role === "candidate" ? req.user.candidateId : Number(req.body?.candidateId || 0);
+  const candidate = store.candidates.find(c => c.id === candidateId);
   const exam = store.exams[candidateId];
+
+  if (!candidate) return res.status(400).json({ error: "未找到考生" });
   if (!exam || exam.status !== "doing") return res.status(400).json({ error: "当前没有进行中的考试" });
+
   const index = Number(req.body.index);
   const answer = String(req.body.answer || "").toUpperCase();
-  if (!Number.isInteger(index) || index < 0 || !["A", "B", "C", "D"].includes(answer)) return res.status(400).json({ error: "答案参数错误" });
+
+  if (!Number.isInteger(index) || index < 0 || !["A", "B", "C", "D"].includes(answer)) {
+    return res.status(400).json({ error: "答案参数错误" });
+  }
+
   exam.answers[index] = answer;
+
+  const total = Array.isArray(exam.questionIds) ? exam.questionIds.length : 0;
+  const answered = Object.keys(exam.answers || {}).length;
+
+  store.events.push({
+    time: Date.now(),
+    type: "answer",
+    text: `${candidate.name} 已作答第${index + 1}题，进度 ${answered}/${total}`
+  });
+
+  store.events = store.events.slice(-80);
+
   saveStore();
+  emitState();
+
   res.json({ ok: true });
 });
 
