@@ -967,9 +967,27 @@
           </div>`).join("");
         return `<section class="module-rank-card"><h4>${moduleName}</h4><div class="module-mini-rank">${rows}</div></section>`;
       }).join("");
-      document.querySelectorAll("[data-person]").forEach(row => row.onclick = () => showPersonDetail(Number(row.dataset.person)));
-      document.querySelectorAll("[data-module-person]").forEach(row => row.onclick = () => showPersonDetail(Number(row.dataset.modulePerson), row.dataset.moduleName));
-      document.querySelectorAll("[data-team]").forEach(row => row.onclick = () => showTeamDetail(row.dataset.team));
+document.querySelectorAll("[data-person]").forEach(row => {
+  row.onclick = () => showScoreModal({
+    type: "person",
+    id: Number(row.dataset.person)
+  });
+});
+
+document.querySelectorAll("[data-module-person]").forEach(row => {
+  row.onclick = () => showScoreModal({
+    type: "modulePerson",
+    id: Number(row.dataset.modulePerson),
+    moduleName: row.dataset.moduleName
+  });
+});
+
+document.querySelectorAll("[data-team]").forEach(row => {
+  row.onclick = () => showScoreModal({
+    type: "team",
+    name: row.dataset.team
+  });
+});
     }
     function showPersonDetail(id, moduleName = null){
       const c = state.candidates.find(x => x.id === id);
