@@ -460,6 +460,7 @@
   </style>
 </head>
 <body>
+  <button id="sidebarToggle" class="sidebar-toggle" type="button">☰</button>
   <div class="app">
     <aside class="sidebar">
       <section class="brand">
@@ -1389,6 +1390,16 @@ function renderQuestion(){
     $("uploadBank").onclick = uploadBank;
     setInterval(()=>{ moduleSeconds = Math.max(0, moduleSeconds - 1); renderMetrics(); }, 1000);
     window.contestApp = { state, modules, render, renderMetrics, renderRanks, renderQuestion, feed, toast, activeQuestions, answerKey, stopCamera, startCamera };
+   window.contestApp = {
+  state,
+  render,
+  toast,
+  stopCamera,
+  answerKey
+};
+  document.getElementById("sidebarToggle")?.addEventListener("click", () => {
+  document.querySelector(".app")?.classList.toggle("sidebar-collapsed");
+});
     render();
   </script>
   <script src="config.js"></script>
