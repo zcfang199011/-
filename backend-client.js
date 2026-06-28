@@ -51,12 +51,6 @@
 
   function renderLogin() {
   document.querySelector(".login-mask")?.remove();
-
-  if (api.user && api.token) {
-    renderBadge();
-    return;
-  }
-
   const mask = document.createElement("div");
   mask.className = "login-mask";
   mask.innerHTML = `
@@ -450,19 +444,27 @@ async function backendResetNow() {
     }).catch(() => {});
   });
 
+function clearLoginState() {
+  sessionStorage.removeItem("contestToken");
+  sessionStorage.removeItem("contestUser");
+  api.token = "";
+  api.user = null;
+  document.querySelector(".login-badge")?.remove();
+}
+
 if (api.user && api.token) {
-  renderBadge();
-  applyRoleAccess();
-  connectSocket();
-  syncState().catch(() => {
-    sessionStorage.removeItem("contestToken");
-    sessionStorage.removeItem("contestUser");
-    api.token = "";
-    api.user = null;
-    document.querySelector(".login-badge")?.remove();
-    renderLogin();
-  });
+  syncState()
+    .then(() => {
+      renderBadge();
+      applyRoleAccess();
+      connectSocket();
+    })
+    .catch(() => {
+      clearLoginState();
+      renderLogin();
+    });
 } else {
+  clearLoginState();
   renderLogin();
 }
 })();
