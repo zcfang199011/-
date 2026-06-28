@@ -157,6 +157,29 @@ async function syncQuestions() {
     console.warn("后端题库同步失败：", error.message);
   }
 }
+  function applyState(payload) {
+  if (!payload) return;
+
+  if (Array.isArray(payload.candidates)) {
+    app.state.candidates = payload.candidates.map(c => ({
+      ...c,
+      moduleScores: c.moduleScores || {},
+      wrongQuestions: c.wrongQuestions || []
+    }));
+  }
+
+  if (api.user?.candidateId) {
+    const index = app.state.candidates.findIndex(c => c.id === api.user.candidateId);
+    if (index >= 0) app.state.selected = index;
+  }
+
+  if (payload.questionsCount !== undefined) {
+    const metric = document.getElementById("metricBank");
+    if (metric) metric.textContent = payload.questionsCount;
+  }
+
+  app.render();
+}
   function applyRoleAccess() {
     if (!api.user) return;
     const isCandidate = api.user.role === "candidate";
