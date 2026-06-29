@@ -1525,7 +1525,9 @@ function renderQuestion(){
       $("cameraGrid").innerHTML = state.candidates.map((c,i)=>{
         const cls = c.status === "danger" ? "danger" : c.status === "warn" ? "warn" : "";
         const text = c.status === "danger" ? "异常" : c.status === "warn" ? "关注" : c.camera ? "在线" : "未接入";
-        return `<article class="camera-tile ${i===state.selected?"selected":""}" data-cam="${i}"><div class="camera-sim"></div><div class="tile-caption"><span><strong>${c.name}</strong><small>${c.group} · ${c.submitted?"已交卷":"作答中"}</small></span><span class="pill ${cls}">${text}</span></div></article>`;
+        const examText = c.submitted ? "已交卷" : c.started ? "作答中" : "未开始";
+
+return `<article class="camera-tile ${i===state.selected?"selected":""}" data-cam="${i}"><div class="camera-sim"></div><div class="tile-caption"><span><strong>${c.name}</strong><small>${c.group} · ${examText}</small></span><span class="pill ${cls}">${text}</span></div></article>`;
       }).join("");
       document.querySelectorAll("[data-cam]").forEach(tile => tile.onclick = () => { state.selected = +tile.dataset.cam; feed(`调取监控详情：${state.candidates[state.selected].name}`); render(); });
       const c = state.candidates[state.selected];
