@@ -164,15 +164,22 @@ function renderBadge() {
   }
 
   function connectSocket() {
-    if (!api.token) return;
-    loadSocketClient().then(() => {
-      if (!window.io) return;
-      if (api.socket) api.socket.disconnect();
-      api.socket = io(API_BASE || undefined, { auth: { token: api.token } });
-      api.socket.on("contest:state", payload => applyState(payload));
-    }).catch(() => {});
-  }
+  if (!api.token) return;
 
+  loadSocketClient().then(() => {
+    if (!window.io) return;
+
+    if (api.socket) api.socket.disconnect();
+
+    api.socket = io(API_BASE || undefined, {
+      auth: { token: api.token }
+    });
+
+    api.socket.on("contest:state", payload => applyState(payload));
+
+    setupVideoSocketHandlers();
+  }).catch(() => {});
+}
   function loadSocketClient() {
     if (window.io) return Promise.resolve();
     return new Promise((resolve, reject) => {
@@ -184,6 +191,258 @@ function renderBadge() {
     });
   }
 
+const RTC_CONFIG = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" }
+  ]
+};
+
+const videoRtc = {
+  localStream: null,
+  sendingPeers: new Map(),
+  watchingPeer: null,
+  watchingCandidateId: null
+};
+
+function getSelectedCandidateId() {
+  if (api.user?.candidateId) return api.user.candidateId;
+  return app.state.candidates?.[app.state.selected]?.id;
+}
+
+async function ensureLocalCameraStream() {
+  const localVideo = document.getElementById("localVideo");
+  const placeholder = document.getElementById("videoPlaceholder");
+  const cameraState = document.getElementById("cameraState");
+
+  if (videoRtc.localStream) return videoRtc.localStream;
+
+  if (localVideo?.srcObject) {
+    videoRtc.localStream = localVideo.srcObject;
+    return videoRtc.localStream;
+  }
+
+  videoRtc.localStream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: false
+  });
+
+  if (localVideo) {
+    localVideo.srcObject = videoRtc.localStream;
+    localVideo.hidden = false;
+    localVideo.autoplay = true;
+    localVideo.playsInline = true;
+    localVideo.muted = true;
+  }
+
+  if (placeholder) placeholder.hidden = true;
+  if (cameraState) cameraState.textContent = "摄像头已接入，可用于远程监考";
+
+  return videoRtc.localStream;
+}
+
+async function startCandidateVideoPublish() {
+  requireLogin();
+
+  const candidateId = getSelectedCandidateId();
+  if (!candidateId) throw new Error("未找到考生");
+
+  if (!api.socket) connectSocket();
+
+  await ensureLocalCameraStream();
+
+  api.socket.emit("video:join", { candidateId });
+
+  await request("/api/proctor/event", {
+    method: "POST",
+    body: JSON.stringify({
+      candidateId,
+      type: "camera-on",
+      message: "摄像头已接入远程监考"
+    })
+  }).catch(() => {});
+}
+
+function setupVideoSocketHandlers() {
+  if (!api.socket || api.socket.__videoReady) return;
+  api.socket.__videoReady = true;
+
+  api.socket.on("video:request", async payload => {
+    try {
+      if (!api.user?.candidateId) return;
+
+      const candidateId = Number(payload?.candidateId);
+      if (candidateId !== Number(api.user.candidateId)) return;
+
+      const monitorSocketId = payload.from;
+      if (!monitorSocketId) return;
+
+      const stream = await ensureLocalCameraStream();
+
+      const oldPeer = videoRtc.sendingPeers.get(monitorSocketId);
+      if (oldPeer) oldPeer.close();
+
+      const pc = new RTCPeerConnection(RTC_CONFIG);
+      videoRtc.sendingPeers.set(monitorSocketId, pc);
+
+      stream.getTracks().forEach(track => {
+        pc.addTrack(track, stream);
+      });
+
+      pc.onicecandidate = event => {
+        if (!event.candidate) return;
+        api.socket.emit("video:ice", {
+          candidateId,
+          to: monitorSocketId,
+          candidate: event.candidate
+        });
+      };
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      api.socket.emit("video:offer", {
+        candidateId,
+        to: monitorSocketId,
+        offer
+      });
+    } catch (error) {
+      app.toast(`视频推流失败：${error.message}`);
+    }
+  });
+
+  api.socket.on("video:offer", async payload => {
+    try {
+      if (payload.to && payload.to !== api.socket.id) return;
+      if (!["admin", "monitor"].includes(api.user?.role)) return;
+
+      const candidateId = Number(payload?.candidateId);
+      if (!candidateId) return;
+
+      if (
+        videoRtc.watchingCandidateId &&
+        Number(videoRtc.watchingCandidateId) !== candidateId
+      ) {
+        return;
+      }
+
+      if (videoRtc.watchingPeer) {
+        videoRtc.watchingPeer.close();
+      }
+
+      const pc = new RTCPeerConnection(RTC_CONFIG);
+      videoRtc.watchingPeer = pc;
+
+      pc.ontrack = event => {
+        const box = document.getElementById("monitorVideoBox");
+        if (!box) return;
+
+        box.innerHTML = "";
+
+        const video = document.createElement("video");
+        video.autoplay = true;
+        video.playsInline = true;
+        video.muted = true;
+        video.controls = true;
+        video.srcObject = event.streams[0];
+
+        box.appendChild(video);
+      };
+
+      pc.onicecandidate = event => {
+        if (!event.candidate) return;
+        api.socket.emit("video:ice", {
+          candidateId,
+          to: payload.from,
+          candidate: event.candidate
+        });
+      };
+
+      await pc.setRemoteDescription(new RTCSessionDescription(payload.offer));
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      api.socket.emit("video:answer", {
+        candidateId,
+        to: payload.from,
+        answer
+      });
+    } catch (error) {
+      app.toast(`视频接收失败：${error.message}`);
+    }
+  });
+
+  api.socket.on("video:answer", async payload => {
+    try {
+      if (payload.to && payload.to !== api.socket.id) return;
+
+      const pc = videoRtc.sendingPeers.get(payload.from);
+      if (!pc) return;
+
+      await pc.setRemoteDescription(new RTCSessionDescription(payload.answer));
+    } catch (error) {
+      console.warn("处理视频 answer 失败：", error.message);
+    }
+  });
+
+  api.socket.on("video:ice", async payload => {
+    try {
+      if (payload.to && payload.to !== api.socket.id) return;
+      if (!payload.candidate) return;
+
+      let pc = null;
+
+      if (videoRtc.watchingPeer) {
+        pc = videoRtc.watchingPeer;
+      }
+
+      if (!pc && payload.from) {
+        pc = videoRtc.sendingPeers.get(payload.from);
+      }
+
+      if (!pc) return;
+
+      await pc.addIceCandidate(new RTCIceCandidate(payload.candidate));
+    } catch (error) {
+      console.warn("处理视频 ICE 失败：", error.message);
+    }
+  });
+}
+
+async function watchCandidateVideo() {
+  requireLogin();
+
+  if (!["admin", "monitor"].includes(api.user?.role)) {
+    app.toast("只有管理员或监考员可以调取远程视频");
+    return;
+  }
+
+  const candidateId = app.state.candidates?.[app.state.selected]?.id;
+  if (!candidateId) {
+    app.toast("未选择考生");
+    return;
+  }
+
+  if (!api.socket) connectSocket();
+
+  if (videoRtc.watchingPeer) {
+    videoRtc.watchingPeer.close();
+    videoRtc.watchingPeer = null;
+  }
+
+  videoRtc.watchingCandidateId = candidateId;
+
+  const box = document.getElementById("monitorVideoBox");
+  if (box) {
+    box.innerHTML = `<div class="placeholder">正在连接 ${app.state.candidates[app.state.selected].name} 的实时画面...</div>`;
+  }
+
+  api.socket.emit("video:join", { candidateId });
+
+  setTimeout(() => {
+    api.socket.emit("video:request", { candidateId });
+  }, 300);
+}
 async function syncState() {
   const payload = await request("/api/state", { method: "GET" });
   applyState(payload);
@@ -446,12 +705,27 @@ async function backendResetNow() {
   }, true);
 
   document.addEventListener("click", event => {
-    if (event.target?.id !== "startCamera" || !api.token) return;
-    setTimeout(() => request("/api/proctor/event", {
-      method: "POST",
-      body: JSON.stringify({ candidateId: app.state.candidates[app.state.selected]?.id, type: "camera-on", message: "摄像头接入" })
-    }).catch(() => {}), 900);
-  });
+  if (!api.token) return;
+
+  if (event.target?.id === "startCamera") {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    startCandidateVideoPublish()
+      .then(() => app.toast("摄像头已接入远程监考"))
+      .catch(error => app.toast(error.message));
+
+    return;
+  }
+
+  if (event.target?.id === "monitorCamera") {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    watchCandidateVideo()
+      .catch(error => app.toast(error.message));
+  }
+}, true);
 
   document.addEventListener("visibilitychange", () => {
     if (!api.token || !api.user?.candidateId || document.visibilityState === "visible") return;
