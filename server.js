@@ -656,13 +656,52 @@ io.use((socket, next) => {
 
 io.on("connection", socket => {
   socket.emit("contest:state", statePayload());
+
   socket.on("video:join", payload => {
-    const room = `candidate:${payload?.candidateId}`;
-    socket.join(room);
+    const candidateId = payload?.candidateId;
+    if (!candidateId) return;
+    socket.join(`candidate:${candidateId}`);
   });
-  socket.on("video:offer", payload => socket.to(`candidate:${payload?.candidateId}`).emit("video:offer", { ...payload, from: socket.id }));
-  socket.on("video:answer", payload => socket.to(`candidate:${payload?.candidateId}`).emit("video:answer", { ...payload, from: socket.id }));
-  socket.on("video:ice", payload => socket.to(`candidate:${payload?.candidateId}`).emit("video:ice", { ...payload, from: socket.id }));
+
+  socket.on("video:request", payload => {
+    const candidateId = payload?.candidateId;
+    if (!candidateId) return;
+
+    socket.to(`candidate:${candidateId}`).emit("video:request", {
+      ...payload,
+      from: socket.id
+    });
+  });
+
+  socket.on("video:offer", payload => {
+    const candidateId = payload?.candidateId;
+    if (!candidateId) return;
+
+    socket.to(`candidate:${candidateId}`).emit("video:offer", {
+      ...payload,
+      from: socket.id
+    });
+  });
+
+  socket.on("video:answer", payload => {
+    const candidateId = payload?.candidateId;
+    if (!candidateId) return;
+
+    socket.to(`candidate:${candidateId}`).emit("video:answer", {
+      ...payload,
+      from: socket.id
+    });
+  });
+
+  socket.on("video:ice", payload => {
+    const candidateId = payload?.candidateId;
+    if (!candidateId) return;
+
+    socket.to(`candidate:${candidateId}`).emit("video:ice", {
+      ...payload,
+      from: socket.id
+    });
+  });
 });
 
 server.listen(PORT, "0.0.0.0", () => {
