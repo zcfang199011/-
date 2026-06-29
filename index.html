@@ -960,9 +960,10 @@ const defaultState = {
     group: p.group,
     online: true,
     camera: i % 7 !== 0,
-    submitted: false,
-    score: 0,
-    accuracy: 0,
+    started: false,
+submitted: false,
+score: 0,
+accuracy: 0,
     timeSec: 0,
     submittedAt: 1000 + i,
     moduleScores: {},
@@ -1011,6 +1012,8 @@ if (!Array.isArray(state.feed)) {
 state.candidates = state.candidates.map((c, i) => ({
   ...defaultState.candidates[i % defaultState.candidates.length],
   ...c,
+  started: Boolean(c.started),
+  submitted: Boolean(c.submitted),
   moduleScores: c.moduleScores || {},
   wrongQuestions: c.wrongQuestions || []
 }));
@@ -1043,7 +1046,18 @@ state.candidates = state.candidates.map((c, i) => ({
       return [...list].sort(() => Math.random() - 0.5);
     }
     function drawExamPaper(){
-      const perModule = 10;
+  const currentCandidate = state.candidates[state.selected];
+
+  if (currentCandidate?.submitted) {
+    toast(`${currentCandidate.name} 已交卷，不能重复作答`);
+    return;
+  }
+
+  if (currentCandidate?.started) {
+    toast(`${currentCandidate.name} 已进入作答`);
+    return;
+  }
+  const perModule = 10;
       const paper = modules.flatMap(module => {
         const pool = state.bank.filter(q => q.module === module.name);
         const typed = [...new Set(pool.map(q => q.type || "未分类"))];
@@ -1056,9 +1070,15 @@ state.candidates = state.candidates.map((c, i) => ({
       state.currentQuestion = 0;
       const firstModule = modules.findIndex(m => state.examPaper[0]?.module === m.name);
       if (firstModule >= 0) state.activeModule = firstModule;
-      examStart = Date.now();
-      $("examState").textContent = "作答中";
-      feed(`${state.candidates[state.selected].name} 一键抽取试卷，共${state.examPaper.length}题。`);
+     examStart = Date.now();
+
+if (currentCandidate) {
+  currentCandidate.started = true;
+  currentCandidate.submitted = false;
+}
+
+$("examState").textContent = "作答中";
+      feed(`${state.candidates[state.selected].name} 进入作答，共抽取${state.examPaper.length}题。`);
       save();
       render();
     }
@@ -1577,7 +1597,12 @@ function renderQuestion(){
         const row = moduleTotals.get(m.name);
         c.moduleScores[m.name] = row?.total ? Math.round(row.earned / row.total * 100) : 0;
       });
-      c.score = score; c.accuracy = score; c.timeSec = used; c.submitted = true; c.submittedAt = state.seq++;
+      c.score = score;
+c.accuracy = score;
+c.timeSec = used;
+c.started = true;
+c.submitted = true;
+c.submittedAt = state.seq++;
       c.camera = false;
       stopCamera();
       feed(`${c.name} 提交试卷：${score}分，用时${time(used)}。`);
